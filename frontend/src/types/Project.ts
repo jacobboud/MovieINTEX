@@ -1,5 +1,5 @@
 export interface Project {
-  projectId: number;
+  projectID: number;
   projectName: string;
   projectType: string;
   projectRegionalProgram: string;

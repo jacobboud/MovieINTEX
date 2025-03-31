@@ -135,3 +135,4 @@ C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\D
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterProject.pdb
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterProject.genruntimeconfig.cache
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\ref\WaterProject.dll
+C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterProject.sourcelink.json
