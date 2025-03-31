@@ -128,7 +128,6 @@ C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\D
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.WaterProject.props
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.WaterProject.props
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\staticwebassets.pack.json
-C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterPro.034699A4.Up2Date
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterProject.dll
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\refint\WaterProject.dll
@@ -136,3 +135,4 @@ C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\D
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterProject.genruntimeconfig.cache
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\ref\WaterProject.dll
 C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\obj\Debug\net8.0\WaterProject.sourcelink.json
+C:\Users\jacob\source\repos\WaterProject\backend\WaterProject\WaterProject\bin\Debug\net8.0\WaterProject.sqlite
