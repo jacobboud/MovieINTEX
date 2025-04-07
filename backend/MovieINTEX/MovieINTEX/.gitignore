@@ -1,5 +1,5 @@
 ﻿bin/
-obj/
+**/obj/Debug/
 
 .vs/
 *.suo
