@@ -15,3 +15,5 @@
 
 *.log
 *.tlog
+
+.DS_Store
