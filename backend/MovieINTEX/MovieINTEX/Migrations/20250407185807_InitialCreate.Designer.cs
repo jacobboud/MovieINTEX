@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WaterProject.Data;
+using MovieINTEX.Data;
 
 #nullable disable
 
-namespace WaterProject.Migrations
+namespace MovieINTEX.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250407181510_InitialCreate")]
+    [Migration("20250407185807_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
