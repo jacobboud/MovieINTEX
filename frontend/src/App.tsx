@@ -10,6 +10,8 @@ import LoginPage from './pages/Login';
 import CreateAccountPage from './pages/CreateAccount';
 import MoviePage from './pages/MoviePage';
 import PrivacyPage from './pages/Privacy';
+import ManageMovies from './pages/ManageMovies';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const location = useLocation(); // This hook now works correctly because of Router
@@ -51,6 +53,7 @@ function App() {
         <Route path="/create-account" element={<CreateAccountPage />} />
         <Route path="/movie" element={<MoviePage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/manage-movies" element={<ManageMovies />} />
       </Routes>
     </div>
   );
