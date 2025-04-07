@@ -34,16 +34,18 @@ function App() {
             <Link to="/movie" className="btn-primary">
               Movie Page
             </Link>
-            <Link to="/privacy" className="btn-secondary">
-              Privacy Page
-            </Link>
           </div>
+          <footer className="text-center mt-5 mb-3">
+            <Link to="/privacy" className="text-decoration-none text-muted">
+              Privacy Policy
+            </Link>
+          </footer>
         </div>
       )}
 
       {/* Define the routes for the pages */}
       <Routes>
-        <Route path="/" element={<h1>Home Page</h1>} />{' '}
+        {/*<Route path="/" element={<h1>Home Page</h1>} />{' '}*/}
         {/* Default home route */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/create-account" element={<CreateAccountPage />} />
