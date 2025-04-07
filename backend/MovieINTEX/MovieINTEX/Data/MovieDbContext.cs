@@ -2,7 +2,7 @@
 using MovieINTEX.Data;
 
 
-namespace WaterProject.Data
+namespace MovieINTEX.Data
 {
     public class MovieDbContext : DbContext
     {

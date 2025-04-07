@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WaterProject.Data
+namespace MovieINTEX.Data
 {
     public class Movie_Titles
     {
