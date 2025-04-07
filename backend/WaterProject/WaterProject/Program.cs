@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WaterProject.Data;
 
@@ -11,7 +12,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<WaterDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("WaterConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("MovieConnection")));
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>  
+    options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()  
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -37,8 +47,12 @@ app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapIdentityApi<IdentityUser>();
 
 app.Run();
