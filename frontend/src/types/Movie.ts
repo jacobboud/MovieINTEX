@@ -1,0 +1,46 @@
+export type Movie = {
+  show_id: number;
+  type: string;
+  title: string;
+  director: string;
+  cast: string;
+  country: string;
+  release_year: number;
+  rating: string;
+  duration: string;
+  description: string;
+
+  // Boolean genre flags
+  action: boolean;
+  adventure: boolean;
+  animeSeries: boolean;
+  britishSeries: boolean;
+  children: boolean;
+  comedies: boolean;
+  internationalComedyDramas: boolean;
+  internationalComedies: boolean;
+  romanticComedies: boolean;
+  crimeTVShowsDocuseries: boolean;
+  documentaries: boolean;
+  internationalDocumentaries: boolean;
+  docuseries: boolean;
+  dramas: boolean;
+  internationalDramas: boolean;
+  romanticDramas: boolean;
+  family: boolean;
+  fantasy: boolean;
+  horror: boolean;
+  internationalThrillers: boolean;
+  internationalTVRomanticDramas: boolean;
+  kids: boolean;
+  language: boolean;
+  musicals: boolean;
+  natureTV: boolean;
+  realityTV: boolean;
+  spirituality: boolean;
+  actionTV: boolean;
+  comedyTV: boolean;
+  dramaTV: boolean;
+  talkShowTVComedies: boolean;
+  thrillers: boolean;
+};
