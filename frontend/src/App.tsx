@@ -5,7 +5,7 @@ import CartPage from './pages/CartPage';
 import DonatePage from './pages/DonatePage';
 import ProjectsPage from './pages/ProjectsPage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-//comment2
+//comment3
 function App() {
   return (
     <>
