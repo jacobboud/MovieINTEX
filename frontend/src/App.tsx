@@ -1,30 +1,65 @@
 import './App.css';
-import { CartProvider } from './context/CartContext';
-import AdminProjectsPage from './pages/AdminProjectsPage';
-import CartPage from './pages/CartPage';
-import DonatePage from './pages/DonatePage';
-import ProjectsPage from './pages/ProjectsPage';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-//comment5
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from 'react-router-dom';
+import LoginPage from './pages/Login';
+import CreateAccountPage from './pages/CreateAccount';
+import MoviePage from './pages/MoviePage';
+import PrivacyPage from './pages/Privacy';
+
 function App() {
+  const location = useLocation(); // This hook now works correctly because of Router
+
+  // Only show the welcome message on the home page (/)
+  const showWelcomeMessage = location.pathname === '/';
+
   return (
-    <>
-      <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<ProjectsPage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route
-              path="/donate/:projectName/:projectId"
-              element={<DonatePage />}
-            />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/adminprojects" element={<AdminProjectsPage />} />
-          </Routes>
-        </Router>
-      </CartProvider>
-    </>
+    <div>
+      {/* Conditionally render the welcome message only on the home page */}
+      {showWelcomeMessage && (
+        <div className="text-center p-10">
+          <h1 className="text-4xl font-bold mb-4">Welcome to CineNiche</h1>
+          <p className="mb-6">Your curated hub for niche movies & shows</p>
+          <div className="flex justify-center gap-4">
+            <Link to="/login" className="btn-primary">
+              Login
+            </Link>
+            <Link to="/create-account" className="btn-secondary">
+              Create Account
+            </Link>
+            <Link to="/movie" className="btn-primary">
+              Movie Page
+            </Link>
+            <Link to="/privacy" className="btn-secondary">
+              Privacy Page
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Define the routes for the pages */}
+      <Routes>
+        <Route path="/" element={<h1>Home Page</h1>} />{' '}
+        {/* Default home route */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/create-account" element={<CreateAccountPage />} />
+        <Route path="/movie" element={<MoviePage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+      </Routes>
+    </div>
   );
 }
 
-export default App;
+function AppWrapper() {
+  return (
+    <Router>
+      <App /> {/* Wrap App component with Router */}
+    </Router>
+  );
+}
+
+export default AppWrapper;
