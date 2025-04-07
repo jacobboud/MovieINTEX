@@ -1,5 +1,5 @@
 // src/pages/Privacy.tsx
-import React from 'react';
+//import React from 'react';
 
 const PrivacyPage = () => {
   return (
