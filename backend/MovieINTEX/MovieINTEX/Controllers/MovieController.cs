@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WaterProject.Data;
+using MovieINTEX.Data;
 
 namespace WaterProject.Controllers
 {
