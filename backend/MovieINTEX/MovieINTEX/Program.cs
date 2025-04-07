@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MovieINTEX.Data;
 using WaterProject.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +22,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()  
     .AddEntityFrameworkStores<ApplicationDbContext>();
-
 
 builder.Services.AddCors(options =>
 {
