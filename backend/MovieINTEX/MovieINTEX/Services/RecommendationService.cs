@@ -45,6 +45,7 @@ namespace MovieINTEX.Services
                     Description = m.description
                 })
                 .ToList();
+        }
 
         public List<string> GetAllMovieCategories()
         {
