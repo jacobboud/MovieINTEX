@@ -7,7 +7,9 @@ const ManageMovies: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [showModal, setShowModal] = useState(false);
-  const [editingMovie, setEditingMovie] = useState<Partial<Movie> | null>(null);
+  const [editingMovie, setEditingMovie] = useState<
+    (Partial<Movie> & { durationValue?: string; durationUnit?: string }) | null
+  >(null);
 
   useEffect(() => {
     fetch('/api/AllMovies')
@@ -23,63 +25,80 @@ const ManageMovies: React.FC = () => {
 
   const handleDelete = (id: number) => {
     if (window.confirm('Are you sure you want to delete this movie?')) {
-      setMovies(movies.filter((m) => m.show_id !== id));
+      fetch(`/Movie/DeleteMovie/${id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then(() => {
+          // Update the frontend after deletion
+          setMovies(movies.filter((m) => m.show_id !== id));
+        })
+        .catch((error) => {
+          console.error('Error deleting movie:', error);
+        });
     }
   };
 
   const handleSave = () => {
     if (!editingMovie) return;
 
-    if ('show_id' in editingMovie && editingMovie.show_id) {
-      setMovies(
-        movies.map((m) =>
-          m.show_id === editingMovie.show_id ? (editingMovie as Movie) : m
-        )
-      );
-    } else {
-      const newMovie: Movie = {
-        ...editingMovie,
-        show_id: Date.now(),
-        // Default genre flags to false
-        action: false,
-        adventure: false,
-        animeSeries: false,
-        britishSeries: false,
-        children: false,
-        comedies: false,
-        internationalComedyDramas: false,
-        internationalComedies: false,
-        romanticComedies: false,
-        crimeTVShowsDocuseries: false,
-        documentaries: false,
-        internationalDocumentaries: false,
-        docuseries: false,
-        dramas: false,
-        internationalDramas: false,
-        romanticDramas: false,
-        family: false,
-        fantasy: false,
-        horror: false,
-        internationalThrillers: false,
-        internationalTVRomanticDramas: false,
-        kids: false,
-        language: false,
-        musicals: false,
-        natureTV: false,
-        realityTV: false,
-        spirituality: false,
-        actionTV: false,
-        comedyTV: false,
-        dramaTV: false,
-        talkShowTVComedies: false,
-        thrillers: false,
-      } as Movie;
-      setMovies([...movies, newMovie]);
-    }
+    // Concatenate durationValue and durationUnit into a single string
+    const duration = `${editingMovie.durationValue} ${editingMovie.durationUnit}`;
 
-    setShowModal(false);
-    setEditingMovie(null);
+    fetch(`/Movie/UpdateMovie/${editingMovie.show_id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...editingMovie,
+        duration, // Save the concatenated string as the duration
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // Update the frontend movie list
+        setMovies(
+          movies.map((movie) =>
+            movie.show_id === editingMovie.show_id ? data : movie
+          )
+        );
+      });
   };
+
+  // Available genres (you can expand this list based on your requirements)
+  const genreOptions = [
+    'Action',
+    'Adventure',
+    'Anime Series',
+    'British Series',
+    'Children',
+    'Comedies',
+    'International Comedy Dramas',
+    'International Comedies',
+    'Romantic Comedies',
+    'Crime TV Shows Docuseries',
+    'Documentaries',
+    'International Documentaries',
+    'Docuseries',
+    'Dramas',
+    'International Dramas',
+    'Romantic Dramas',
+    'Family',
+    'Fantasy',
+    'Horror',
+    'International Thrillers',
+    'International TV Romantic Dramas',
+    'Kids',
+    'Language',
+    'Musicals',
+    'Nature TV',
+    'Reality TV',
+    'Spirituality',
+    'Action TV',
+    'Comedy TV',
+    'Drama TV',
+    'Talk Show TV Comedies',
+    'Thrillers',
+  ];
 
   return (
     <div className="container mt-5">
@@ -170,99 +189,184 @@ const ManageMovies: React.FC = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {[
-              { label: 'Title', field: 'title' },
-              { label: 'Type', field: 'type' },
-              { label: 'Director', field: 'director' },
-              { label: 'Cast', field: 'cast' },
-              { label: 'Country', field: 'country' },
-              { label: 'Rating', field: 'rating' },
-              { label: 'Duration', field: 'duration' },
-              { label: 'Description', field: 'description' },
-            ].map(({ label, field }) => (
-              <Form.Group className="mb-3" key={field}>
-                <Form.Label>{label}</Form.Label>
-                <Form.Control
-                  value={(editingMovie?.[field as keyof Movie] as string) || ''}
-                  onChange={(e) =>
-                    setEditingMovie({
-                      ...editingMovie!,
-                      [field]: e.target.value,
-                    })
-                  }
-                />
-              </Form.Group>
-            ))}
+            {/* Type dropdown */}
             <Form.Group className="mb-3">
-              <Form.Label>Release Year</Form.Label>
-              <Form.Control
-                type="number"
-                value={editingMovie?.release_year || ''}
+              <Form.Label>Type</Form.Label>
+              <Form.Select
+                value={editingMovie?.type || ''}
                 onChange={(e) =>
                   setEditingMovie({
                     ...editingMovie!,
-                    release_year: parseInt(e.target.value),
+                    type: e.target.value,
+                  })
+                }
+              >
+                <option value="Movie">Movie</option>
+                <option value="TV-Series">TV-Series</option>
+              </Form.Select>
+            </Form.Group>
+
+            {/* Genre multi-select */}
+            <Form.Group className="mb-3">
+              <Form.Label>Genres</Form.Label>
+              <Form.Select
+                multiple
+                value={Object.keys(editingMovie || {}).filter(
+                  (key) =>
+                    genreOptions.includes(key) &&
+                    editingMovie?.[key as keyof Movie]
+                )}
+                onChange={(e) => {
+                  const selectedGenres = Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value
+                  );
+                  setEditingMovie({
+                    ...editingMovie!,
+                    ...Object.fromEntries(
+                      selectedGenres.map((genre) => [
+                        genre.toLowerCase().replace(' ', ''),
+                        true,
+                      ])
+                    ),
+                  });
+                }}
+              >
+                {genreOptions.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
+            {/* Other fields */}
+            <Form.Group className="mb-3">
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                value={editingMovie?.title || ''}
+                onChange={(e) =>
+                  setEditingMovie({
+                    ...editingMovie!,
+                    title: e.target.value,
                   })
                 }
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Genres</Form.Label>
-              <div className="row">
-                {[
-                  'action',
-                  'adventure',
-                  'animeSeries',
-                  'britishSeries',
-                  'children',
-                  'comedies',
-                  'internationalComedyDramas',
-                  'internationalComedies',
-                  'romanticComedies',
-                  'crimeTVShowsDocuseries',
-                  'documentaries',
-                  'internationalDocumentaries',
-                  'docuseries',
-                  'dramas',
-                  'internationalDramas',
-                  'romanticDramas',
-                  'family',
-                  'fantasy',
-                  'horror',
-                  'internationalThrillers',
-                  'internationalTVRomanticDramas',
-                  'kids',
-                  'language',
-                  'musicals',
-                  'natureTV',
-                  'realityTV',
-                  'spirituality',
-                  'actionTV',
-                  'comedyTV',
-                  'dramaTV',
-                  'talkShowTVComedies',
-                  'thrillers',
-                ].map((genreKey) => (
-                  <div className="col-md-4" key={genreKey}>
-                    <Form.Check
-                      type="radio"
-                      name="genre"
-                      label={genreKey
-                        .replace(/([A-Z])/g, ' $1') // Adds spaces before capital letters
-                        .replace(/^./, (str) => str.toUpperCase()) // Capitalizes the first letter
-                        .replace(/([A-Za-z]+)TV/, '$1 TV')} // Properly handles 'TV' by ensuring a space before 'TV'
-                      checked={editingMovie?.[genreKey as keyof Movie] === true}
-                      onChange={() =>
-                        setEditingMovie({
-                          ...editingMovie!,
-                          [genreKey]: true,
-                        })
-                      }
-                    />
-                  </div>
-                ))}
+              <Form.Label>Director</Form.Label>
+              <Form.Control
+                value={editingMovie?.director || ''}
+                onChange={(e) =>
+                  setEditingMovie({
+                    ...editingMovie!,
+                    director: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Cast</Form.Label>
+              <Form.Control
+                value={editingMovie?.cast || ''}
+                onChange={(e) =>
+                  setEditingMovie({
+                    ...editingMovie!,
+                    cast: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Country</Form.Label>
+              <Form.Control
+                value={editingMovie?.country || ''}
+                onChange={(e) =>
+                  setEditingMovie({
+                    ...editingMovie!,
+                    country: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Rating</Form.Label>
+              <Form.Select
+                value={editingMovie?.rating || ''}
+                onChange={(e) =>
+                  setEditingMovie({
+                    ...editingMovie!,
+                    rating: e.target.value,
+                  })
+                }
+              >
+                {editingMovie?.type === 'Movie' ? (
+                  <>
+                    <option value="G">G</option>
+                    <option value="PG">PG</option>
+                    <option value="PG-13">PG-13</option>
+                    <option value="R">R</option>
+                    <option value="UR">UR</option>
+                    <option value="NR">NR</option>
+                  </>
+                ) : editingMovie?.type === 'TV-Series' ? (
+                  <>
+                    <option value="TV-G">TV-G</option>
+                    <option value="TV-14">TV-14</option>
+                    <option value="TV-PG">TV-PG</option>
+                    <option value="TV-Y">TV-Y</option>
+                    <option value="TV-MA">TV-MA</option>
+                    <option value="TV-Y7">TV-Y7</option>
+                    <option value="TV-Y7-FV">TV-Y7-FV</option>
+                  </>
+                ) : null}
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Duration</Form.Label>
+              <div className="d-flex">
+                <Form.Control
+                  type="number"
+                  placeholder="Enter duration"
+                  value={editingMovie?.durationValue || ''}
+                  onChange={(e) =>
+                    setEditingMovie({
+                      ...editingMovie!,
+                      durationValue: e.target.value, // Update durationValue
+                    })
+                  }
+                />
+                <Form.Select
+                  value={editingMovie?.durationUnit || 'Minutes'} // Default to 'Minutes'
+                  onChange={(e) =>
+                    setEditingMovie({
+                      ...editingMovie!,
+                      durationUnit: e.target.value, // Update durationUnit
+                    })
+                  }
+                >
+                  <option value="Minutes">Minutes</option>
+                  <option value="Season(s)">Season(s)</option>
+                </Form.Select>
               </div>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                value={editingMovie?.description || ''}
+                onChange={(e) =>
+                  setEditingMovie({
+                    ...editingMovie!,
+                    description: e.target.value,
+                  })
+                }
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
