@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieINTEX.Data;
 using MovieINTEX.Services;
 
-namespace WaterProject.Controllers
+namespace MovieINTEX.Controllers
 {
     [Route("[controller]")]
     [ApiController]
