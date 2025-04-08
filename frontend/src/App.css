@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -108,7 +111,7 @@ body {
 }
 
 .RKHeader {
-  font-family: 'Courier New', system-ui;
+  font-family: "Mulish", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 200;
   font-weight: bold;
 }
