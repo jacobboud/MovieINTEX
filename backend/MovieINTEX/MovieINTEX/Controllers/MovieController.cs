@@ -27,5 +27,22 @@ namespace MovieINTEX.Controllers
         }
 
 
+        [HttpGet("all-movies")]
+        public IActionResult GetAllMovies()
+        {
+            var results = _recommendationService.GetAllMovies();
+            return Ok(results);
+        }
+
+        [HttpGet("categories")]
+        public IActionResult GetCategories()
+        {
+            var categories = _recommendationService.GetAllMovieCategories();
+            return Ok(categories);
+
+        }
+
+
+
     }
 }

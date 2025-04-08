@@ -1,6 +1,7 @@
 ﻿using MovieINTEX.Data;
 using MovieINTEX.Models.Dto;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MovieINTEX.Services
 {
@@ -30,5 +31,34 @@ namespace MovieINTEX.Services
                 })
                 .ToList();
         }
+
+
+        public List<MovieDto> GetAllMovies()
+        {
+            return _context.movies_titles
+                .OrderBy(m => m.title)
+                .Select(m => new MovieDto
+                {
+                    ShowId = m.show_id,
+                    Title = m.title,
+                    ReleaseYear = m.release_year,
+                    Description = m.description
+                })
+                .ToList();
+
+        public List<string> GetAllMovieCategories()
+        {
+            return typeof(Movie_Titles).GetProperties()
+                .Where(p => p.PropertyType == typeof(bool))
+                .Select(p =>
+                {
+                    var columnAttr = p.GetCustomAttributes(typeof(ColumnAttribute), false)
+                                      .Cast<ColumnAttribute>()
+                                      .FirstOrDefault();
+                    return columnAttr?.Name ?? p.Name;
+                })
+                .ToList();
+        }
+
     }
 }

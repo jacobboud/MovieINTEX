@@ -1,69 +1,79 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import MovieCard from '../components/MovieCard';
-import { Movie } from '../types/Movie';
-import AuthorizeView, { AuthorizedUser } from '../components/AuthorizeView';
-import Logout from '../components/Logout';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+
+interface MovieDto {
+  showId: number;
+  title: string;
+  description?: string;
+}
 
 export default function MoviePage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [search, setSearch] = useState('');
-  const [genre, setGenre] = useState('');
-  const [page, setPage] = useState(1);
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const {
+    selectedMovie,
+    selectedServices,
+    selectedCategories,
+  }: {
+    selectedMovie?: MovieDto;
+    selectedServices?: string[];
+    selectedCategories?: string[];
+  } = location.state || {};
+
+  // Redirect back if no data was passed
   useEffect(() => {
-    const loadMovies = async () => {
-      const res = await axios.get('/api/AllMovies', {
-        params: { search, genre, page },
-      });
-      setMovies((prev) => [...prev, ...res.data]);
-    };
-
-    loadMovies();
-  }, [page, search, genre]);
-
-  const handleScroll = () => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop >=
-      document.documentElement.offsetHeight - 500
-    ) {
-      setPage((prev) => prev + 1);
+    if (!selectedMovie) {
+      navigate('/new-user');
     }
-  };
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [selectedMovie, navigate]);
 
   return (
-    <AuthorizeView>
-      <span>
-        <Logout>
-          Logout <AuthorizedUser value="email" />
-        </Logout>
-      </span>
-    <div className="p-6">
-      <div className="mb-4 flex gap-4">
-        <input
-          placeholder="Search by title..."
-          onChange={(e) => setSearch(e.target.value)}
-          className="input"
-        />
-        <select onChange={(e) => setGenre(e.target.value)} className="input">
-          <option value="">All Genres</option>
-          <option value="Action">Action</option>
-          <option value="Comedies">Comedies</option>
-          {/* Add other genre options */}
-        </select>
-      </div>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Your Preferences</h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {movies.map((movie) => (
-          <MovieCard key={movie.show_id} movie={movie} />
-        ))}
+      {selectedMovie && (
+        <div className="bg-white rounded shadow p-4 mb-6">
+          <h2 className="text-xl font-semibold mb-2">🎬 Favorite Movie</h2>
+          <p className="font-medium">{selectedMovie.title}</p>
+          {selectedMovie.description && (
+            <p className="text-sm text-gray-600 mt-1">
+              {selectedMovie.description}
+            </p>
+          )}
+        </div>
+      )}
+
+      {selectedServices && selectedServices.length > 0 && (
+        <div className="bg-white rounded shadow p-4 mb-6">
+          <h2 className="text-xl font-semibold mb-2">📺 Streaming Services</h2>
+          <ul className="list-disc list-inside">
+            {selectedServices.map((service) => (
+              <li key={service}>{service}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {selectedCategories && selectedCategories.length > 0 && (
+        <div className="bg-white rounded shadow p-4 mb-6">
+          <h2 className="text-xl font-semibold mb-2">🎞 Favorite Categories</h2>
+          <ul className="list-disc list-inside">
+            {selectedCategories.map((category) => (
+              <li key={category}>{category}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="text-center">
+        <button
+          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => navigate('/')}
+        >
+          Back to Home
+        </button>
       </div>
     </div>
-    </AuthorizeView>
   );
 }
