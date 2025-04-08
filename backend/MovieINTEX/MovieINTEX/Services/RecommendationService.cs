@@ -32,6 +32,20 @@ namespace MovieINTEX.Services
                 .ToList();
         }
 
+
+        public List<MovieDto> GetAllMovies()
+        {
+            return _context.movies_titles
+                .OrderBy(m => m.title)
+                .Select(m => new MovieDto
+                {
+                    ShowId = m.show_id,
+                    Title = m.title,
+                    ReleaseYear = m.release_year,
+                    Description = m.description
+                })
+                .ToList();
+
         public List<string> GetAllMovieCategories()
         {
             return typeof(Movie_Titles).GetProperties()
