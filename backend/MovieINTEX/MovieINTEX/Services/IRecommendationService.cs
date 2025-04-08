@@ -10,7 +10,7 @@ namespace MovieINTEX.Services
         List<MovieDto> GetAllMovies();
 
         List<string> GetAllMovieCategories();
-        Task<List<CarouselDto>> GetCarouselsForUserAsync(int userId);
+        Task<CarouselsResponseDto?> GetCarouselsWithUserInfoAsync(int userId);
 
 
     }

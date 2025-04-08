@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieINTEX.Data;
 using MovieINTEX.Services;
@@ -42,12 +44,28 @@ namespace MovieINTEX.Controllers
 
         }
 
-        [HttpGet("carousels/{userId}")]
-        public async Task<IActionResult> GetUserCarousels(int userId)
-        {
-            var carousels = await _recommendationService.GetCarouselsForUserAsync(userId);
-            return Ok(carousels);
-        }
+        [Authorize]
+        [HttpGet("carousels")]
+        public async Task<IActionResult> GetCarouselsForUser(
+            [FromServices] UserManager<IdentityUser> userManager,
+            [FromServices] MovieDbContext movieDbContext,
+            [FromServices] IRecommendationService recommendationService)
+                {
+                    var identityUserId = userManager.GetUserId(User);
+                    var movieUser = await movieDbContext.movies_users
+                        .FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
+
+                    if (movieUser == null)
+                    {
+                        return NotFound("Movie user not found.");
+                    }
+
+                    var carousels = await recommendationService.GetCarouselsWithUserInfoAsync(movieUser.UserId);
+
+
+                    return Ok(carousels);
+                }
+
 
 
 
