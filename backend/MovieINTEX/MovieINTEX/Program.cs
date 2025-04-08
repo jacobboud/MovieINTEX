@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MovieINTEX.Data;
 using System.Security.Claims;
+using MovieINTEX.Models.Dto;
 using MovieINTEX.Services;
 
 
@@ -76,6 +77,47 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapIdentityApi<IdentityUser>();
+
+app.MapPost("/custom-register", async (
+    RegisterDto model,
+    UserManager<IdentityUser> userManager,
+    MovieDbContext movieDbContext) =>
+{
+    var identityUser = new IdentityUser
+    {
+        UserName = model.Email,
+        Email = model.Email
+    };
+
+    var result = await userManager.CreateAsync(identityUser, model.Password);
+
+    if (!result.Succeeded)
+    {
+        return Results.BadRequest(result.Errors);
+    }
+
+    // ✅ Add MovieUser record
+    var movieUser = new Movie_Users
+    {
+        Name = model.Name,
+        Email = model.Email,
+        Phone = model.Phone,
+        Age = model.Age,
+        Gender = model.Gender,
+        City = model.City,
+        State = model.State,
+        Zip = model.Zip,
+        IdentityUserId = identityUser.Id,
+
+        // streaming platforms = false by default or set elsewhere
+    };
+
+    movieDbContext.movies_users.Add(movieUser);
+    await movieDbContext.SaveChangesAsync();
+
+    return Results.Ok(new { message = "User registered." });
+});
+
 
 app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
 {

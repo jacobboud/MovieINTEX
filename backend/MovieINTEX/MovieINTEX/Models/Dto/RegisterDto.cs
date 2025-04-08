@@ -1,14 +1,15 @@
-namespace MovieINTEX.Models.Dto;
-
-public class RegisterDto
+namespace MovieINTEX.Models.Dto
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
-
-    public string Name { get; set; }
-    public int Age { get; set; }
-    public string Gender { get; set; }
-    public string City { get; set; }
-    public string State { get; set; }
-    public string Zip { get; set; }
+    public class RegisterDto
+    {
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public required string Name { get; set; }
+        public required string Phone { get; set; }
+        public int Age { get; set; }
+        public required string Gender { get; set; }
+        public required string City { get; set; }
+        public required string State { get; set; }
+        public required string Zip { get; set; }
+    }
 }
