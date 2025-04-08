@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Table, Form, Modal, Pagination } from 'react-bootstrap';
 import { Movie } from '../types/Movie'; // adjust path if needed
+import AuthorizeView, { AuthorizedUser } from '../components/AuthorizeView';
+import Logout from '../components/Logout';
 
 const ManageMovies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -82,6 +84,12 @@ const ManageMovies: React.FC = () => {
   };
 
   return (
+    <AuthorizeView>
+      <span>
+        <Logout>
+          Logout <AuthorizedUser value="email" />
+        </Logout>
+      </span>
     <div className="container mt-5">
       <h2 className="mb-4">Manage Movies</h2>
 
@@ -276,6 +284,7 @@ const ManageMovies: React.FC = () => {
         </Modal.Footer>
       </Modal>
     </div>
+    </AuthorizeView>
   );
 };
 

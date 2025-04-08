@@ -1,6 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import AuthorizeView, { AuthorizedUser } from '../components/AuthorizeView';
+import Logout from '../components/Logout';
 
 export default function MovieDetail() {
   const { showId } = useParams();
@@ -18,6 +20,12 @@ export default function MovieDetail() {
   if (!movie) return <div>Loading...</div>;
 
   return (
+    <AuthorizeView>
+      <span>
+        <Logout>
+          Logout <AuthorizedUser value="email" />
+        </Logout>
+      </span>
     <div className="p-6">
       <h1 className="text-3xl font-bold">{movie.title}</h1>
       <p>{movie.description}</p>
@@ -32,5 +40,6 @@ export default function MovieDetail() {
         Submit Rating
       </button>
     </div>
+    </AuthorizeView>
   );
 }
