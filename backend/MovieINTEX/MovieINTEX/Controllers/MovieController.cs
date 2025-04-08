@@ -26,6 +26,14 @@ namespace WaterProject.Controllers
             return Ok(results);
         }
 
+        [HttpGet("all-movies")]
+        public IActionResult GetAllMovies()
+        {
+            var results = _recommendationService.GetAllMovies();
+            return Ok(results);
+        }
+
+
 
     }
 }
