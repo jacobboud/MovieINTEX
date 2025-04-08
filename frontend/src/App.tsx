@@ -34,9 +34,6 @@ function App() {
             <Link to="/create-account" className="btn-secondary">
               Create Account
             </Link>
-            <Link to="/movie" className="btn-primary">
-              Movie Page
-            </Link>
           </div>
           <footer className="text-center mt-5 mb-3">
             <Link to="/privacy" className="text-decoration-none text-muted">
