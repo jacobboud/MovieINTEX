@@ -12,6 +12,7 @@ import MoviePage from './pages/MoviePage';
 import PrivacyPage from './pages/Privacy';
 import ManageMovies from './pages/ManageMovies';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import NewUserForm from './pages/NewUserForm';
 
 function App() {
   const location = useLocation(); // This hook now works correctly because of Router
@@ -54,6 +55,7 @@ function App() {
         <Route path="/movie" element={<MoviePage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/manage-movies" element={<ManageMovies />} />
+        <Route path="/new-user" element={<NewUserForm />} />
       </Routes>
     </div>
   );

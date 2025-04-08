@@ -43,7 +43,6 @@
 //   );
 // }
 
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -94,11 +93,13 @@ function Register() {
         }),
       })
         //.then((response) => response.json())
-        .then((data) => {
-          // handle success or error from the server
-          console.log(data);
-          if (data.ok) setError('Successful registration. Please log in.');
-          else setError('Error registering.');
+        .then(async (response) => {
+          if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(errText || 'Registration failed');
+          }
+          // ✅ Navigate only on success
+          navigate('/new-user');
         })
         .catch((error) => {
           // handle network error
