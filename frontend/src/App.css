@@ -100,3 +100,15 @@ body {
 .btn-secondary:hover {
   background-color: #343a40;
 }
+
+.logout {
+  color: #fff;
+  font-size: large;
+  font-weight: bold;
+}
+
+.RKHeader {
+  font-family: 'Courier New', system-ui;
+  font-size: 200;
+  font-weight: bold;
+}

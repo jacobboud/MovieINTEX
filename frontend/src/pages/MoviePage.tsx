@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import MovieCard from '../components/MovieCard';
 import { Movie } from '../types/Movie';
+import AuthorizeView, { AuthorizedUser } from '../components/AuthorizeView';
+import Logout from '../components/Logout';
 
 export default function MoviePage() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -35,6 +37,12 @@ export default function MoviePage() {
   }, []);
 
   return (
+    <AuthorizeView>
+      <span>
+        <Logout>
+          Logout <AuthorizedUser value="email" />
+        </Logout>
+      </span>
     <div className="p-6">
       <div className="mb-4 flex gap-4">
         <input
@@ -56,5 +64,6 @@ export default function MoviePage() {
         ))}
       </div>
     </div>
+    </AuthorizeView>
   );
 }
