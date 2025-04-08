@@ -78,6 +78,13 @@ app.MapControllers();
 
 app.MapIdentityApi<IdentityUser>();
 
+app.MapGet("/auth-status", (ClaimsPrincipal user) => 
+{
+    var isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+    return Results.Ok(new { isAuthenticated });
+});
+
+
 app.MapPost("/custom-register", async (
     RegisterDto model,
     UserManager<IdentityUser> userManager,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Table, Form, Modal, Pagination } from 'react-bootstrap';
 import { Movie } from '../types/Movie'; // adjust path if needed
 import AuthorizeView, { AuthorizedUser } from '../components/AuthorizeView';

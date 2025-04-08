@@ -117,9 +117,20 @@ function Register() {
                 <label htmlFor="age">Age</label>
               </div>
               <div className="form-floating mb-3">
-                <input className="form-control" type="text" id="gender" value={gender} onChange={(e) => setGender(e.target.value)} />
+                <select
+                  className="form-select"
+                  id="gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                >
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Prefer not to answer">Prefer not to answer</option>
+                </select>
                 <label htmlFor="gender">Gender</label>
               </div>
+
               <div className="form-floating mb-3">
                 <input className="form-control" type="text" id="city" value={city} onChange={(e) => setCity(e.target.value)} />
                 <label htmlFor="city">City</label>
