@@ -1,79 +1,50 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-interface MovieDto {
-  showId: number;
+interface CarouselItem {
   title: string;
-  description?: string;
+  showId: string;
+  description: string;
+  imageUrl: string;
+}
+
+interface Carousel {
+  title: string;
+  items: CarouselItem[];
 }
 
 export default function MoviePage() {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [carousels, setCarousels] = useState<Carousel[]>([]);
+  const userId = 1; // Replace with actual auth-based user ID
 
-  const {
-    selectedMovie,
-    selectedServices,
-    selectedCategories,
-  }: {
-    selectedMovie?: MovieDto;
-    selectedServices?: string[];
-    selectedCategories?: string[];
-  } = location.state || {};
-
-  // Redirect back if no data was passed
   useEffect(() => {
-    if (!selectedMovie) {
-      navigate('/new-user');
-    }
-  }, [selectedMovie, navigate]);
+    axios
+      .get(`https://localhost:5000/Movie/carousels/${userId}`)
+      .then((res) => setCarousels(res.data))
+      .catch((err) => console.error('Failed to load carousels:', err));
+  }, [userId]);
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Your Preferences</h1>
+    <div className="max-w-6xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">For JACOB</h1>
 
-      {selectedMovie && (
-        <div className="bg-white rounded shadow p-4 mb-6">
-          <h2 className="text-xl font-semibold mb-2">🎬 Favorite Movie</h2>
-          <p className="font-medium">{selectedMovie.title}</p>
-          {selectedMovie.description && (
-            <p className="text-sm text-gray-600 mt-1">
-              {selectedMovie.description}
-            </p>
-          )}
-        </div>
-      )}
-
-      {selectedServices && selectedServices.length > 0 && (
-        <div className="bg-white rounded shadow p-4 mb-6">
-          <h2 className="text-xl font-semibold mb-2">📺 Streaming Services</h2>
-          <ul className="list-disc list-inside">
-            {selectedServices.map((service) => (
-              <li key={service}>{service}</li>
+      {carousels.map((carousel) => (
+        <div key={carousel.title} className="mb-10">
+          <h2 className="text-2xl font-semibold mb-4">{carousel.title}</h2>
+          <div className="flex gap-4 overflow-x-auto">
+            {carousel.items.map((item) => (
+              <div key={item.showId} className="min-w-[160px]">
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="rounded-md w-full h-[240px] object-cover mb-2"
+                />
+                <p className="text-sm font-medium truncate">{item.title}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
-      )}
-
-      {selectedCategories && selectedCategories.length > 0 && (
-        <div className="bg-white rounded shadow p-4 mb-6">
-          <h2 className="text-xl font-semibold mb-2">🎞 Favorite Categories</h2>
-          <ul className="list-disc list-inside">
-            {selectedCategories.map((category) => (
-              <li key={category}>{category}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="text-center">
-        <button
-          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          onClick={() => navigate('/')}
-        >
-          Back to Home
-        </button>
-      </div>
+      ))}
     </div>
   );
 }

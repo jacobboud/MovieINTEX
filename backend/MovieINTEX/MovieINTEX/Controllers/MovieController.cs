@@ -42,6 +42,13 @@ namespace WaterProject.Controllers
 
         }
 
+        [HttpGet("carousels/{userId}")]
+        public async Task<IActionResult> GetUserCarousels(int userId)
+        {
+            var carousels = await _recommendationService.GetCarouselsForUserAsync(userId);
+            return Ok(carousels);
+        }
+
 
 
     }
