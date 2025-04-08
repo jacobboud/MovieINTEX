@@ -20,6 +20,8 @@ builder.Services.AddDbContext<MovieDbContext>(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
 
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
