@@ -22,7 +22,7 @@ export default function MovieCard({ movie }: { movie: any }) {
           alt={movie.title}
           className="w-full h-48 object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = '/MoviePosters/default.jpg';
+            (e.target as HTMLImageElement).src = '/MoviePosters/default.jpg'; // 👈 use a placeholder image
           }}
         />
         <div className="p-2">

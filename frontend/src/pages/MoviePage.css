@@ -1,0 +1,229 @@
+/* General reset and base styles */
+/*body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000;
+  color: #fff;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: flex-start; /* Align Content to the top */
+/*align-items: flex-start; /* align content with the top */
+/*flex-direction: column; /* arrange children in a vertical layout */
+/*min-height: 100vh;
+  padding: 20px;
+}*/
+
+.heading-orbitron {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 60px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  color: #1db954;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.heading-playfair {
+  font-family: 'Playfair Display', serif;
+  font-size: 60px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #f8f8f8;
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.heading-bebas {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 70px;
+  font-weight: normal;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+/* Buttons */
+button,
+.button {
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type='submit'] {
+  background-color: #1db954;
+  color: white;
+}
+
+button[type='submit']:hover {
+  background-color: #159b44;
+}
+
+.clear-button {
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  color: #ff6b6b;
+}
+
+/* Search bar */
+.search-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+  margin-top: 50px;
+}
+
+.search-input {
+  padding: 10px;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Hero section */
+.hero-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #000;
+  padding: 30px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  gap: 30px;
+}
+
+.hero-text {
+  flex: 1;
+  color: #fff;
+  max-width: 50%;
+}
+
+.hero-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.hero-description {
+  font-size: 16px;
+  color: #ccc;
+  max-width: 60%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-section img {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Carousel container */
+.carousel-section {
+  margin-top: 40px;
+  margin-bottom: 40px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.carousel-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  justify-content: left;
+}
+
+.carousel-items {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 12px;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+  flex-wrap: nowrap;
+  width: 95vw;
+
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.carousel-items::-webkit-scrollbar {
+  height: 6px;
+}
+
+.carousel-items::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+}
+
+/* Carousel items */
+.movie-item {
+  flex: 0 0 auto;
+  width: 160px;
+  text-align: center;
+}
+
+.movie-item img {
+  width: 160px;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.movie-title {
+  font-size: 12px;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Make sure everything stays visible */
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-text,
+  .hero-image {
+    max-width: 100%;
+  }
+
+  .hero-title {
+    font-size: 22px;
+  }
+
+  .hero-description {
+    font-size: 14px;
+  }
+}

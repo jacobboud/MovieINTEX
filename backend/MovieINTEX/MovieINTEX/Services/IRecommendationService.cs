@@ -33,6 +33,12 @@ namespace MovieINTEX.Services
         bool DeleteMovie(string id);
 
         Task<List<string>> GetRecommendationsForShowAsync(string showId);
+        Task<List<string>> GetRecommendationsForTableAsync(string tableName, int userId);
+
+
+        bool TryGetCategoryTableName(string category, out string? tableName);
+
+
 
     }
 }

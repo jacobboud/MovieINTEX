@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Pagination from '../components/Pagination';
 import MovieCard from '../components/MovieCard';
+import { Link } from 'react-router-dom';
 
 interface Movie {
   show_id: string;
@@ -9,6 +10,42 @@ interface Movie {
   release_year: number;
   description: string;
 }
+
+const columnToPropertyMap: { [key: string]: string } = {
+  Action: 'Action',
+  Adventure: 'Adventure',
+  'Anime Series International TV Shows': 'AnimeSeries',
+  'British TV Shows Docuseries International TV Shows': 'BritishSeries',
+  Comedies: 'Comedies',
+  Children: 'Children',
+  'Crime TV Shows Docuseries': 'CrimeTVShowsDocuseries',
+  Documentaries: 'Documentaries',
+  Docuseries: 'Docuseries',
+  Dramas: 'Dramas',
+  Fantasy: 'Fantasy',
+  'Family Movies': 'Family',
+  'Horror Movies': 'Horror',
+  'Comedies International Movies': 'InternationalComedies',
+  'Comedies Dramas International Movies': 'InternationalComedyDramas',
+  'Documentaries International Movies': 'InternationalDocumentaries',
+  'Dramas International Movies': 'InternationalDramas',
+  'International TV Shows Romantic TV Shows TV Dramas':
+    'InternationalTVRomanticDramas',
+  'International Movies Thrillers': 'InternationalThrillers',
+  "Kids' TV": 'Kids',
+  'Language TV Shows': 'Language',
+  Musicals: 'Musicals',
+  'Nature TV': 'NatureTV',
+  'Reality TV': 'RealityTV',
+  'Comedies Romantic Movies': 'RomanticComedies',
+  'Dramas Romantic Movies': 'RomanticDramas',
+  Spirituality: 'Spirituality',
+  'Talk Shows TV Comedies': 'TalkShowTVComedies',
+  Thrillers: 'Thrillers',
+  'TV Action': 'ActionTV',
+  'TV Comedies': 'ComedyTV',
+  'TV Dramas': 'DramaTV',
+};
 
 const AllMovies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -19,6 +56,13 @@ const AllMovies: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('NameAsc');
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Movie[]>([]);
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
+  const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
+  const [normalizedCategory, setNormalizedCategory] = useState<string | null>(
+    null
+  );
 
   // Fetch filtered, sorted, paginated movies
   const fetchMovies = async () => {
@@ -29,7 +73,7 @@ const AllMovies: React.FC = () => {
       withCredentials: true,
       sortBy,
     };
-    if (category) params.category = category;
+    if (normalizedCategory) params.category = normalizedCategory;
 
     try {
       const res = await axios.get('/Movie/paged-movies', { params, withCredentials: true, });
@@ -77,13 +121,56 @@ const AllMovies: React.FC = () => {
     fetchMovies();
   }, [currentPage, sortBy, category, selectedPageSize]);
 
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!category) {
+        try {
+          const res = await axios.get('/Movie/carousels', {
+            withCredentials: true,
+          });
+          if (res.data?.carousels?.length > 0) {
+            const recommendedForYou = res.data.carousels.find((c: any) =>
+              c.title?.toLowerCase().includes('recommended for you')
+            );
+            setRecommendedMovies(recommendedForYou?.items || []);
+          } else {
+            setRecommendedMovies([]);
+          }
+        } catch (err) {
+          console.error('Error fetching general recommendations:', err);
+          setRecommendedMovies([]);
+        }
+        return;
+      }
+
+      try {
+        const res = await axios.get('/Movie/category-recommendations', {
+          params: { category: normalizedCategory },
+          withCredentials: true,
+        });
+        setRecommendedMovies(res.data);
+      } catch (err) {
+        console.error('Error fetching category recommendations:', err);
+        setRecommendedMovies([]);
+      }
+    };
+
+    fetchRecommendations();
+  }, [category]);
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
     setCurrentPage(1);
   };
 
   const handleCategoryChange = (cat: string | null) => {
-    setCategory(cat);
+    if (cat === null) {
+      setCategory(null);
+      setNormalizedCategory(null);
+    } else {
+      setCategory(cat); // e.g., "Anime Series International TV Shows"
+      setNormalizedCategory(columnToPropertyMap[cat] ?? null); // e.g., "AnimeSeries"
+    }
     setCurrentPage(1);
   };
 
@@ -92,9 +179,125 @@ const AllMovies: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const handleSearch = async (query: string) => {
+    setSearchSubmitted(true);
+
+    if (query.trim() === '') {
+      setSearchResults([]);
+      setSearchSubmitted(false);
+      return;
+    }
+
+    try {
+      const res = await axios.get<Movie[]>(
+        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
+        { withCredentials: true }
+      );
+      setSearchResults(res.data);
+    } catch (err) {
+      console.error('Search failed:', err);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setSearchSubmitted(false);
+  };
+
   return (
     <div className="container my-4">
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '15px',
+          marginBottom: '20px',
+        }}
+      >
+        <Link
+          to="/movie"
+          style={{
+            backgroundColor: '#1db954',
+            color: '#fff',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          Home
+        </Link>
+        <Link
+          to="/profile"
+          style={{
+            backgroundColor: '#fff',
+            color: '#000',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          Edit Profile
+        </Link>
+      </div>
+
       <h1 className="mb-4 text-center">All Movies</h1>
+
+      {/* 🔍 Search Bar */}
+      <div className="text-center mb-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch(searchQuery);
+          }}
+          style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
+        >
+          <input
+            type="text"
+            placeholder="Search for a movie..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '10px',
+              width: '80%',
+              maxWidth: '400px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              style={{
+                background: 'transparent',
+                color: '#000',
+                fontSize: '18px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              title="Clear search"
+            >
+              ❌
+            </button>
+          )}
+          <button
+            type="submit"
+            style={{
+              padding: '10px 20px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: '#1db954',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            Search
+          </button>
+        </form>
+      </div>
 
       {/* Filter + Sort + Page Size Controls */}
       <div className="d-flex flex-wrap justify-content-center gap-4 mb-4">
@@ -120,6 +323,36 @@ const AllMovies: React.FC = () => {
             ))}
           </select>
         </div>
+
+        {/* Category Recommendation Section */}
+        {category && recommendedMovies.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-center">
+              Recommended {category} Movies You Might Like
+            </h3>
+            <div className="row justify-content-center">
+              {recommendedMovies.slice(0, 4).map((movie) => (
+                <div className="col-md-3 mb-4" key={movie.show_id}>
+                  <MovieCard movie={movie} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recommended for You Section (when no category is selected) */}
+        {!category && recommendedMovies.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-center">Recommended for You</h3>
+            <div className="row justify-content-center">
+              {recommendedMovies.slice(0, 4).map((movie) => (
+                <div className="col-md-3 mb-4" key={movie.show_id}>
+                  <MovieCard movie={movie} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Sort Dropdown */}
         <div className="text-center">
@@ -154,26 +387,22 @@ const AllMovies: React.FC = () => {
         </div>
       </div>
 
-      {/* Optional Recommendation Section */}
-      {category && (
-        <div className="mb-4">
-          <h3 className="text-center">
-            Recommended {category} Movies You Might Like
-          </h3>
-          <div className="row justify-content-center">
-            {movies.slice(0, 4).map((movie) => (
-              <div className="col-md-3 mb-4" key={movie.show_id}>
-                <MovieCard movie={movie} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <br />
 
       {/* Main Movie Grid */}
       <div className="row">
         {loading ? (
           <p className="text-center text-muted">Loading movies...</p>
+        ) : searchSubmitted ? (
+          searchResults.length > 0 ? (
+            searchResults.map((movie) => (
+              <div className="col-md-3 mb-4" key={movie.show_id}>
+                <MovieCard movie={movie} />
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-muted">No search results found.</p>
+          )
         ) : movies.length > 0 ? (
           movies.map((movie) => (
             <div className="col-md-3 mb-4" key={movie.show_id}>
@@ -186,11 +415,13 @@ const AllMovies: React.FC = () => {
       </div>
 
       {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      {!searchSubmitted && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 };

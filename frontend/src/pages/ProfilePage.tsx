@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import NavBar from '../components/NavBar';
+import './ProfilePage.css';
 
 interface MovieDto {
   showId: string;
@@ -115,125 +117,116 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="text-center text-black bg-gradient-to-br from-blue-500 to-blue-700 min-h-screen py-10">
-      <button
-        onClick={() => navigate('/movie')}
-        className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded shadow"
-      >
-        ← Back to Movie Page
-      </button>
+    <>
+      <div>
+        <NavBar />
 
-      <h1 className="text-3xl font-bold mb-6">My Movie Experience</h1>
+        <h1 className="heading-bebas">My Movie Experience</h1>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">My Favorite Movie:</h2>
-        <p className="mb-4">{favoriteMovieTitle}</p>
+        <div className="section-container favorite-movie-section">
+          <h2>My Favorite Movie:</h2>
+          <p>{favoriteMovieTitle}</p>
 
-        <input
-          type="text"
-          placeholder="Search for a movie..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="p-2 rounded border mr-2"
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-white text-black font-semibold px-3 py-2 rounded"
-        >
-          Search
+          <input
+            type="text"
+            placeholder="Search for a movie..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="p-2 rounded border mr-2"
+          />
+          <button onClick={handleSearch}>Search</button>
+
+          <div className="movie-search-results">
+            {searchResults.map((movie) => (
+              <div key={movie.showId} className="movie-item">
+                <span>{movie.title}</span>
+                <button onClick={() => handleSetFavorite(movie)}>
+                  Set as Favorite
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="section-container movie-ratings-table">
+          <h2>My Movie Ratings:</h2>
+          <table className="table-auto mx-auto">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ratings.map((entry, index) => (
+                <tr key={`${entry.showId}-${index}`}>
+                  <td>{entry.title}</td>
+                  <td>
+                    <select
+                      value={entry.rating}
+                      onChange={(e) =>
+                        handleRatingChange(index, parseInt(e.target.value))
+                      }
+                    >
+                      {[1, 2, 3, 4, 5].map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="section-container categories-services-section">
+          <h2>My Favorite Categories:</h2>
+          <ul className="categories-list">
+            {Object.keys(categories).map((key) => (
+              <li key={key} className="categories-item">
+                <span>{key}</span>
+                <input
+                  type="checkbox"
+                  checked={categories[key]}
+                  onChange={() => handleCategoryChange(key)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Services Section */}
+        <div className="section-container categories-services-section">
+          <h2>My Streaming Services:</h2>
+          <ul className="services-list">
+            {Object.keys(services).map((key) => (
+              <li key={key} className="services-item">
+                <span>{key}</span>
+                <input
+                  type="checkbox"
+                  checked={services[key]}
+                  onChange={() => handleServiceChange(key)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <button onClick={handleSave} className="save-button">
+          Save
         </button>
 
-        <div className="mt-4 space-y-2">
-          {searchResults.map((movie) => (
-            <div
-              key={movie.showId}
-              className="bg-white text-black px-4 py-2 rounded flex justify-between items-center max-w-md mx-auto"
-            >
-              <span>{movie.title}</span>
-              <button
-                onClick={() => handleSetFavorite(movie)}
-                className="ml-4 px-3 py-1 bg-blue-600 text-white rounded"
-              >
-                Set as Favorite
-              </button>
-            </div>
-          ))}
-        </div>
+        <br></br>
+        <br></br>
+        <button
+          onClick={() => navigate('/movie')}
+          className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded shadow"
+        >
+          ← Back to Movie Page
+        </button>
       </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">My Movie Ratings:</h2>
-        <table className="mx-auto text-sm bg-white text-black rounded shadow">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="px-3 py-2">Title</th>
-              <th className="px-3 py-2">Rating</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ratings.map((entry, index) => (
-              <tr key={`${entry.showId}-${index}`}>
-                <td className="px-3 py-2">{entry.title}</td>
-                <td className="px-3 py-2">
-                  <select
-                    value={entry.rating}
-                    onChange={(e) =>
-                      handleRatingChange(index, parseInt(e.target.value))
-                    }
-                  >
-                    {[1, 2, 3, 4, 5].map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">My Favorite Categories:</h2>
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 text-left max-w-5xl mx-auto">
-          {Object.keys(categories).map((key) => (
-            <label key={key} className="block text-white">
-              <input
-                type="checkbox"
-                checked={categories[key]}
-                onChange={() => handleCategoryChange(key)}
-                className="mr-2"
-              />
-              {key}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">My Streaming Services:</h2>
-        <div className="columns-2 md:columns-3 gap-4 text-left max-w-3xl mx-auto">
-          {Object.keys(services).map((key) => (
-            <label key={key} className="block text-white">
-              <input
-                type="checkbox"
-                checked={services[key]}
-                onChange={() => handleServiceChange(key)}
-                className="mr-2"
-              />
-              {key}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <button
-        onClick={handleSave}
-        className="bg-white text-black font-semibold px-6 py-2 rounded mt-4"
-      >
-        Save
-      </button>
-    </div>
+    </>
   );
 }
