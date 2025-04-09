@@ -18,7 +18,7 @@ const ManageMovies: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `https://localhost:5000/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`
+      `https://localhost:5000/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`, {credentials: 'include',}
     )
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');
@@ -42,6 +42,7 @@ const ManageMovies: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this movie?')) {
       fetch(`https://localhost:5000/Movie/DeleteMovie/${id}`, {
         method: 'DELETE',
+        credentials: 'include'
       })
         .then((response) => {
           if (response.ok) {
@@ -75,6 +76,7 @@ const ManageMovies: React.FC = () => {
 
     fetch(url, {
       method,
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
@@ -246,8 +248,10 @@ const ManageMovies: React.FC = () => {
 
               return (
                 <React.Fragment key={page}>
-                  {showEllipsis && <Pagination.Ellipsis disabled />}
+                  {showEllipsis && <Pagination.Ellipsis key={`ellipsis-${page}`} disabled />}
+
                   <Pagination.Item
+                    key={`page-${page}`}
                     active={page === currentPage}
                     onClick={() => setCurrentPage(page)}
                   >

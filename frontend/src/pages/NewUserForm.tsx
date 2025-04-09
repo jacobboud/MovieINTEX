@@ -36,7 +36,7 @@ export default function NewUserForm() {
       setSearchResults([]);
 
       const res = await axios.get(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`
+        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`, {withCredentials: true,},
       );
 
       const results = Array.isArray(res.data) ? res.data : [];
@@ -117,7 +117,9 @@ export default function NewUserForm() {
   useEffect(() => {
     if (step === 3) {
       axios
-        .get('https://localhost:5000/Movie/categories')
+        .get('https://localhost:5000/Movie/categories', {
+          withCredentials: true, // ✅ this sends the cookie for auth
+        })
         .then((res) => setCategories(res.data))
         .catch((err) => console.error('Error fetching categories:', err));
     }

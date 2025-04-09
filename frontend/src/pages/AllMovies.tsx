@@ -26,12 +26,13 @@ const AllMovies: React.FC = () => {
     const params: any = {
       page: currentPage,
       pageSize: selectedPageSize,
+      withCredentials: true,
       sortBy,
     };
     if (category) params.category = category;
 
     try {
-      const res = await axios.get('/Movie/paged-movies', { params });
+      const res = await axios.get('/Movie/paged-movies', { params, withCredentials: true, });
       console.log('Fetched movies response:', res.data);
 
       if (Array.isArray(res.data.movies)) {
@@ -53,7 +54,7 @@ const AllMovies: React.FC = () => {
   // Fetch movie categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/Movie/categories');
+      const res = await axios.get('/Movie/categories', {withCredentials: true,});
       if (Array.isArray(res.data)) {
         setCategories(res.data);
       } else {

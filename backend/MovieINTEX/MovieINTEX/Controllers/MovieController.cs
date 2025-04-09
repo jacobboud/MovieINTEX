@@ -19,7 +19,7 @@ namespace MovieINTEX.Controllers
         {
             _recommendationService = recommendationService;
         }
-
+        [Authorize]
         [HttpGet("movies")]
         public IActionResult GetMovies([FromQuery] string query)
         {
@@ -29,14 +29,15 @@ namespace MovieINTEX.Controllers
             var results = _recommendationService.SearchMovies(query);
             return Ok(results);
         }
-
+        [Authorize]
         [HttpGet("all-movies")]
         public IActionResult GetAllMovies()
         {
             var results = _recommendationService.GetAllMovies();
             return Ok(results);
         }
-
+        
+        [Authorize]
         [HttpGet("paged-movies")]
         public IActionResult GetPagedMovies(
             int page = 1,
@@ -58,7 +59,8 @@ namespace MovieINTEX.Controllers
                 movies = pagedMovies
             });
         }
-
+        
+        [Authorize]
         [HttpGet("categories")]
         public IActionResult GetCategories()
         {
@@ -86,7 +88,9 @@ namespace MovieINTEX.Controllers
 
             return Ok(carousels);
         }
-
+        
+        
+        [Authorize (Roles = "Admin")]
         [HttpPost("AddMovie")]
         public IActionResult AddMovie([FromBody] Movie_Titles movie)
         {
@@ -106,7 +110,7 @@ namespace MovieINTEX.Controllers
                 return BadRequest($"Error adding movie: {ex.Message}");
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("UpdateMovie/{id}")]
         public IActionResult UpdateMovie(string id, [FromBody] Movie_Titles movie)
         {
@@ -115,7 +119,7 @@ namespace MovieINTEX.Controllers
                 return NotFound();
             return Ok(updatedMovie);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("DeleteMovie/{id}")]
         public IActionResult DeleteMovie(string id)
         {

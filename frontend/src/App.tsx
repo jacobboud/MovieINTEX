@@ -80,9 +80,9 @@ function App() {
                     path="/movie"
                     element={
                         <AuthorizeView>
-                          
+                            <RequireRole roles={['User', 'Admin']}>
                                 <MoviePage />
-                            
+                            </RequireRole>
                         </AuthorizeView>
                     }
                 />

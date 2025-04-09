@@ -134,7 +134,13 @@ namespace MovieINTEX.Services
                     ShowId = m.show_id,
                     Title = m.title,
                     ReleaseYear = m.release_year,
-                    Description = m.description
+                    Description = m.description,
+                    Director = m.director,         // ✅ add these
+                    Rating = m.rating,
+                    Duration = m.duration,
+                    Type = m.type,
+                    Cast = m.cast,
+                    Country = m.country
                 })
                 .ToList();
         }

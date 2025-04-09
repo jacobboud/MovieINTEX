@@ -16,9 +16,8 @@ namespace MovieINTEX.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-role")]
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateRole([FromQuery] string roleName)
         {
             if (await _roleManager.RoleExistsAsync(roleName))
@@ -27,9 +26,9 @@ namespace MovieINTEX.Controllers
             await _roleManager.CreateAsync(new IdentityRole(roleName));
             return Ok("Role created.");
         }
-
+        
+        [Authorize(Roles = "Admin")]
         [HttpPost("assign-role")]
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignRole([FromQuery] string email, [FromQuery] string role)
         {
             var user = await _userManager.FindByEmailAsync(email);
