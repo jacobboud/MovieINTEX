@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MovieINTEX.Data
 {
+    [Table("movies_ratings")]
     public class MovieRating
     {
-        [Key]
         [Column("user_id")]
         public int UserId { get; set; }
 

@@ -15,6 +15,43 @@ namespace MovieINTEX.Services
             _context = context;
         }
 
+        private static readonly Dictionary<string, string> CategoryTableMapping = new()
+        {
+            ["AnimeSeries"] = "user_recommendations_anime_series_international_tv_shows",
+            ["BritishSeries"] = "user_recommendations_british_tv_shows_docuseries_international_tv_shows",
+            ["Comedies"] = "user_recommendations_comedies",
+            ["Children"] = "user_recommendations_children",
+            ["CrimeTVShowsDocuseries"] = "user_recommendations_crime_tv_shows_docuseries",
+            ["Documentaries"] = "user_recommendations_documentaries",
+            ["Docuseries"] = "user_recommendations_docuseries",
+            ["Dramas"] = "user_recommendations_dramas",
+            ["Fantasy"] = "user_recommendations_fantasy",
+            ["Family"] = "user_recommendations_family_movies",
+            ["Horror"] = "user_recommendations_horror_movies",
+            ["InternationalComedies"] = "user_recommendations_comedies_international_movies",
+            ["InternationalComedyDramas"] = "user_recommendations_comedies_dramas_international_movies",
+            ["InternationalDocumentaries"] = "user_recommendations_documentaries_international_movies",
+            ["InternationalDramas"] = "user_recommendations_dramas_international_movies",
+            ["InternationalTVRomanticDramas"] = "user_recommendations_international_tv_shows_romantic_tv_shows_tv_dramas",
+            ["InternationalThrillers"] = "user_recommendations_international_movies_thrillers",
+            ["Kids"] = "user_recommendations_kids'_tv",
+            ["Language"] = "user_recommendations_language_tv_shows",
+            ["Musicals"] = "user_recommendations_musicals",
+            ["NatureTV"] = "user_recommendations_nature_tv",
+            ["RealityTV"] = "user_recommendations_reality_tv",
+            ["RomanticComedies"] = "user_recommendations_comedies_romantic_movies",
+            ["RomanticDramas"] = "user_recommendations_dramas_romantic_movies",
+            ["Spirituality"] = "user_recommendations_spirituality",
+            ["TalkShowTVComedies"] = "user_recommendations_talk_shows_tv_comedies",
+            ["Thrillers"] = "user_recommendations_thrillers",
+            ["Action"] = "user_recommendations_action",
+            ["ActionTV"] = "user_recommendations_tv_action",
+            ["Adventure"] = "user_recommendations_adventure",
+            ["ComedyTV"] = "user_recommendations_tv_comedies",
+            ["DramaTV"] = "user_recommendations_tv_dramas"
+        };
+
+
         public List<MovieDto> SearchMovies(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -188,22 +225,40 @@ namespace MovieINTEX.Services
             // 2. {Favorite Movie} Lovers Also Loved
             if (!string.IsNullOrEmpty(user.FavoriteMovie) && titlesDict.ContainsKey(user.FavoriteMovie))
             {
-                var favMovieRecs = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{user.FavoriteMovie}'");
+                var favEntry = titlesDict[user.FavoriteMovie];
+                var safeShowId = user.FavoriteMovie.Replace("'", "''");
+                var favMovieRecs = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'");
+
+                Console.WriteLine($"[FavoriteMovie] show_id: {safeShowId}, title: {favEntry.title}, recs: {favMovieRecs.Count}");
+
                 if (favMovieRecs.Count > 0)
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"{titlesDict[user.FavoriteMovie].title} Lovers also Loved...",
+                        Title = $"{favEntry.title} Lovers also Loved...",
                         Items = MapShowIds(favMovieRecs)
                     });
                 }
             }
 
+
+
+
             // 3. Because you liked {Movie}
             foreach (var showId in highRatedShows)
             {
-                if (!titlesDict.ContainsKey(showId)) continue;
-                var row = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{showId}'");
+                if (!titlesDict.ContainsKey(showId))
+                {
+                    Console.WriteLine($"[HighRated] show_id not found in titlesDict: {showId}");
+                    continue;
+                }
+
+                Console.WriteLine($"[HighRated] Trying recommendations for show_id: {showId}, title: {titlesDict[showId].title}");
+                var safeShowId = showId.Replace("'", "''");
+                var row = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'");
+
+                Console.WriteLine($"[HighRated] Found {row.Count} recommendations for {titlesDict[showId].title}");
+
                 if (row.Count > 0)
                 {
                     carousels.Add(new CarouselDto
@@ -214,29 +269,33 @@ namespace MovieINTEX.Services
                 }
             }
 
+
             // 4. {Category} Movies You Might Like
             var categories = new[] {
-        "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies",
-        "InternationalComedyDramas", "InternationalComedies", "RomanticComedies", "CrimeTVShowsDocuseries",
-        "Documentaries", "InternationalDocumentaries", "Docuseries", "Dramas", "InternationalDramas",
-        "RomanticDramas", "Family", "Fantasy", "Horror", "InternationalThrillers",
-        "InternationalTVRomanticDramas", "Kids", "Language", "Musicals", "NatureTV", "RealityTV",
-        "Spirituality", "ActionTV", "ComedyTV", "DramaTV", "TalkShowTVComedies", "Thrillers"
-    };
+                "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies",
+                "InternationalComedyDramas", "InternationalComedies", "RomanticComedies", "CrimeTVShowsDocuseries",
+                "Documentaries", "InternationalDocumentaries", "Docuseries", "Dramas", "InternationalDramas",
+                "RomanticDramas", "Family", "Fantasy", "Horror", "InternationalThrillers",
+                "InternationalTVRomanticDramas", "Kids", "Language", "Musicals", "NatureTV", "RealityTV",
+                "Spirituality", "ActionTV", "ComedyTV", "DramaTV", "TalkShowTVComedies", "Thrillers"
+            };
 
             foreach (var category in categories)
             {
                 var prop = typeof(Movie_Users).GetProperty(category);
                 if (prop != null && prop.PropertyType == typeof(bool) && (bool)(prop.GetValue(user) ?? false))
                 {
-                    var catRecs = await GetRecommendationShowIds($"SELECT * FROM user_recommendations_{category.ToLower()} WHERE user_id = {userId}");
-                    if (catRecs.Count > 0)
+                    if (CategoryTableMapping.TryGetValue(category, out var tableName))
                     {
-                        carousels.Add(new CarouselDto
+                        var catRecs = await GetRecommendationShowIds($"SELECT * FROM {tableName} WHERE user_id = {userId}");
+                        if (catRecs.Count > 0)
                         {
-                            Title = $"{category} Movies You Might Like",
-                            Items = MapShowIds(catRecs)
-                        });
+                            carousels.Add(new CarouselDto
+                            {
+                                Title = $"{category} Movies You Might Like",
+                                Items = MapShowIds(catRecs)
+                            });
+                        }
                     }
                 }
             }
