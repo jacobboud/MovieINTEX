@@ -226,6 +226,38 @@ namespace MovieINTEX.Controllers
             return Ok();
         }
 
+        [Authorize]
+        [HttpGet("category-recommendations")]
+        public async Task<IActionResult> GetCategoryRecommendations(
+            [FromQuery] string category,
+            [FromServices] UserManager<IdentityUser> userManager,
+            [FromServices] MovieDbContext dbContext)
+        {
+            var identityUserId = userManager.GetUserId(User);
+            var movieUser = await dbContext.movies_users
+                .FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
+
+            if (movieUser == null) return NotFound("User not found");
+
+            if (!_recommendationService.TryGetCategoryTableName(category, out var tableName))
+                return BadRequest("Invalid category");
+
+            var recIds = await _recommendationService.GetRecommendationsForTableAsync(tableName, movieUser.UserId);
+
+            var titlesDict = await dbContext.movies_titles.ToDictionaryAsync(t => t.show_id);
+
+            var movies = recIds
+                .Where(id => titlesDict.ContainsKey(id))
+                .Select(id => new MovieDto
+                {
+                    ShowId = id,
+                    Title = titlesDict[id].title,
+                    Description = titlesDict[id].description
+                }).ToList();
+
+            return Ok(movies);
+        }
+
 
     }
 }

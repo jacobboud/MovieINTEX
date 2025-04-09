@@ -51,6 +51,18 @@ namespace MovieINTEX.Services
             ["DramaTV"] = "user_recommendations_tv_dramas"
         };
 
+        private static readonly Dictionary<string, string> CategoryColumnToProperty = typeof(Movie_Titles)
+            .GetProperties()
+            .Where(p => p.PropertyType == typeof(bool))
+            .Select(p => new
+            {
+                Property = p.Name,
+                Column = p.GetCustomAttributes(typeof(ColumnAttribute), false)
+                          .Cast<ColumnAttribute>()
+                          .FirstOrDefault()?.Name ?? p.Name
+            })
+            .ToDictionary(x => x.Column, x => x.Property);
+
 
         public List<MovieDto> SearchMovies(string query)
         {
@@ -88,20 +100,34 @@ namespace MovieINTEX.Services
         {
             var query = _context.movies_titles.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(category))
+            // Validate the category against the model's boolean properties
+            var validCategories = typeof(Movie_Titles)
+                .GetProperties()
+                .Where(p => p.PropertyType == typeof(bool))
+                .Select(p => p.Name)
+                .ToHashSet();
+
+            if (!string.IsNullOrWhiteSpace(category) && CategoryColumnToProperty.TryGetValue(category, out var propName))
             {
-                query = query.Where(m => EF.Property<bool>(m, category) == true);
+                query = query.Where(m => EF.Property<bool>(m, propName) == true);
             }
 
             return query.Count();
         }
 
+
         public List<MovieDto> GetPagedMovies(int page, int pageSize, string? category = null, string? sortBy = "NameAsc")
         {
             var query = _context.movies_titles.AsQueryable();
 
-            // Category filtering
-            if (!string.IsNullOrWhiteSpace(category))
+            // ✅ Validate category exists and is a bool property before filtering
+            var validCategories = typeof(Movie_Titles)
+                .GetProperties()
+                .Where(p => p.PropertyType == typeof(bool))
+                .Select(p => p.Name)
+                .ToHashSet();
+
+            if (!string.IsNullOrWhiteSpace(category) && validCategories.Contains(category))
             {
                 query = query.Where(m => EF.Property<bool>(m, category) == true);
             }
@@ -124,7 +150,6 @@ namespace MovieINTEX.Services
                 _ => query.OrderBy(m => m.title)
             };
 
-
             // Pagination and projection
             return query
                 .Skip((page - 1) * pageSize)
@@ -139,6 +164,7 @@ namespace MovieINTEX.Services
                 .ToList();
         }
 
+
         public List<string> GetAllMovieCategories()
         {
             return typeof(Movie_Titles).GetProperties()
@@ -152,6 +178,12 @@ namespace MovieINTEX.Services
                 })
                 .ToList();
         }
+
+        public bool TryGetCategoryTableName(string category, out string? tableName)
+        {
+            return CategoryTableMapping.TryGetValue(category, out tableName);
+        }
+
 
         public Movie_Titles AddMovie(Movie_Titles movie)
         {
@@ -385,6 +417,11 @@ namespace MovieINTEX.Services
             var safeShowId = showId.Replace("'", "''");
             string sql = $"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'";
             return GetRecommendationShowIds(sql);
+        }
+
+        public Task<List<string>> GetRecommendationsForTableAsync(string tableName, int userId)
+        {
+            return GetRecommendationShowIds($"SELECT * FROM {tableName} WHERE user_id = {userId}");
         }
 
 
