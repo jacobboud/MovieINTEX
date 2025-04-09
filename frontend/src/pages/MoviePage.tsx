@@ -24,6 +24,7 @@ export default function MoviePage() {
   const [missingImages, setMissingImages] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<CarouselItem[]>([]);
+  const [searchSubmitted, setSearchSubmitted] = useState(false);
 
   useEffect(() => {
     axios
@@ -38,7 +39,7 @@ export default function MoviePage() {
   }, []);
 
   const handleSearch = async (query: string) => {
-    setSearchQuery(query);
+    setSearchSubmitted(true);
 
     if (query.trim() === '') {
       setSearchResults([]);
@@ -56,20 +57,24 @@ export default function MoviePage() {
     }
   };
 
-  const sanitizeTitleForFilename = (title: string) => {
-    return title
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults([]);
+    setSearchSubmitted(false);
+  };
+
+  const sanitizeTitleForFilename = (title: string) =>
+    title
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9 ]/g, '')
       .trim();
-  };
 
   const isImageMissing = (title: string) =>
     missingImages.has(sanitizeTitleForFilename(title));
 
   if (carousels.length === 0) return null;
 
-  // Find first visible hero movie from first carousel
   const firstVisibleCarouselItems = carousels[0].items.filter(
     (item) => !isImageMissing(item.title)
   );
@@ -94,19 +99,56 @@ export default function MoviePage() {
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <input
-          type="text"
-          placeholder="Search for a movie..."
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{
-            padding: '10px',
-            width: '80%',
-            maxWidth: '400px',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch(searchQuery);
           }}
-        />
+          style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
+        >
+          <input
+            type="text"
+            placeholder="Search for a movie..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '10px',
+              width: '80%',
+              maxWidth: '400px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              style={{
+                background: 'transparent',
+                color: '#fff',
+                fontSize: '18px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              title="Clear search"
+            >
+              ❌
+            </button>
+          )}
+          <button
+            type="submit"
+            style={{
+              padding: '10px 20px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: '#1db954',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            Search
+          </button>
+        </form>
       </div>
 
       <h1
@@ -156,7 +198,7 @@ export default function MoviePage() {
         </div>
       )}
 
-      {searchResults.length > 0 && (
+      {searchSubmitted && (
         <div style={{ marginBottom: '30px' }}>
           <h2
             style={{
@@ -168,59 +210,63 @@ export default function MoviePage() {
           >
             Search Results
           </h2>
-          <div
-            style={{
-              display: 'flex',
-              overflowX: 'auto',
-              gap: '12px',
-              paddingBottom: '8px',
-            }}
-          >
-            {searchResults
-              .filter((item) => !isImageMissing(item.title))
-              .map((item) => {
-                const filename = sanitizeTitleForFilename(item.title);
-                return (
-                  <div
-                    key={item.showId}
-                    style={{
-                      width: '160px',
-                      flexShrink: 0,
-                      textAlign: 'center',
-                    }}
-                  >
-                    <Link to={`/movie/${item.showId}`}>
-                      <img
-                        src={`/MoviePosters/${filename}.jpg`}
-                        alt={item.title}
-                        style={{
-                          width: '160px',
-                          height: '240px',
-                          objectFit: 'cover',
-                          borderRadius: '6px',
-                        }}
-                        onError={() =>
-                          setMissingImages(
-                            (prev) => new Set(prev.add(filename))
-                          )
-                        }
-                      />
-                    </Link>
-                    <p
+          {searchResults.length === 0 ? (
+            <p style={{ color: '#ccc' }}>No results found.</p>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                gap: '12px',
+                paddingBottom: '8px',
+              }}
+            >
+              {searchResults
+                .filter((item) => !isImageMissing(item.title))
+                .map((item) => {
+                  const filename = sanitizeTitleForFilename(item.title);
+                  return (
+                    <div
+                      key={item.showId}
                       style={{
-                        fontSize: '12px',
-                        marginTop: '6px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        width: '160px',
+                        flexShrink: 0,
+                        textAlign: 'center',
                       }}
                     >
-                      {item.title}
-                    </p>
-                  </div>
-                );
-              })}
-          </div>
+                      <Link to={`/movie/${item.showId}`}>
+                        <img
+                          src={`/MoviePosters/${filename}.jpg`}
+                          alt={item.title}
+                          style={{
+                            width: '160px',
+                            height: '240px',
+                            objectFit: 'cover',
+                            borderRadius: '6px',
+                          }}
+                          onError={() =>
+                            setMissingImages(
+                              (prev) => new Set(prev.add(filename))
+                            )
+                          }
+                        />
+                      </Link>
+                      <p
+                        style={{
+                          fontSize: '12px',
+                          marginTop: '6px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {item.title}
+                      </p>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
       )}
 
@@ -234,7 +280,6 @@ export default function MoviePage() {
 
         return (
           <div key={carousel.title} style={{ marginBottom: '40px' }}>
-            {/* Header: skip for first if it's the hero, but show left-aligned header still */}
             {(index !== 0 || heroMovie) && (
               <h2
                 style={{
@@ -248,7 +293,6 @@ export default function MoviePage() {
               </h2>
             )}
 
-            {/* Carousel row */}
             <div
               style={{
                 display: 'flex',
@@ -258,7 +302,6 @@ export default function MoviePage() {
               }}
             >
               {visibleItems.map((item) => {
-                // Skip hero item from carousel
                 if (index === 0 && item.showId === heroMovie?.showId)
                   return null;
 
@@ -290,7 +333,6 @@ export default function MoviePage() {
                         }
                       />
                     </Link>
-
                     <p
                       style={{
                         fontSize: '12px',
