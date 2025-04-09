@@ -169,49 +169,51 @@ const ManageMovies: React.FC = () => {
           </Button>
         </div>
 
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Director</th>
-              <th>Year</th>
-              <th>Rating</th>
-              <th>Duration</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentMovies.map((movie) => (
-              <tr key={movie.show_id}>
-                <td>{movie.title}</td>
-                <td>{movie.director}</td>
-                <td>{movie.release_year}</td>
-                <td>{movie.rating}</td>
-                <td>{movie.duration}</td>
-                <td>
-                  <Button
-                    size="sm"
-                    variant="warning"
-                    onClick={() => {
-                      setEditingMovie(movie);
-                      setShowModal(true);
-                    }}
-                  >
-                    Edit
-                  </Button>{' '}
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDelete(movie.show_id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
+        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Director</th>
+                <th>Year</th>
+                <th>Rating</th>
+                <th>Duration</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-
+            </thead>
+            <tbody>
+              {currentMovies.map((movie) => (
+                <tr key={movie.show_id}>
+                  <td>{movie.title}</td>
+                  <td>{movie.director}</td>
+                  <td>{movie.release_year}</td>
+                  <td>{movie.rating}</td>
+                  <td>{movie.duration}</td>
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="warning"
+                      onClick={() => {
+                        setEditingMovie(movie);
+                        setShowModal(true);
+                      }}
+                    >
+                      Edit
+                    </Button>{' '}
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDelete(movie.show_id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+        <br></br>
         <Pagination className="justify-content-center">
           <Pagination.First
             onClick={() => setCurrentPage(1)}
