@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 interface CarouselItem {
   title: string;
@@ -62,6 +63,15 @@ export default function MoviePage() {
         padding: '20px',
       }}
     >
+      <div className="text-right mb-4">
+        <Link
+          to="/profile"
+          className="bg-white text-black px-3 py-1 rounded hover:bg-gray-200"
+        >
+          Edit Profile
+        </Link>
+      </div>
+
       <h1
         style={{
           fontSize: '24px',
