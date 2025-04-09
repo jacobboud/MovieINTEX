@@ -12,91 +12,133 @@ import MoviePage from './pages/MoviePage';
 import PrivacyPage from './pages/Privacy';
 import ManageMovies from './pages/ManageMovies';
 import NewUserForm from './pages/NewUserForm';
+import AllMovies from './pages/AllMovies';
 import RequireRole from './components/RequireRole';
 import AuthorizeView from './components/AuthorizeView';
-import { useEffect, useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+/*Imports bootstrap*/
+//import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect } from 'react';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
-  const location = useLocation();
-  const showWelcomeMessage = location.pathname === '/';
+    const location = useLocation(); // This hook now works correctly because of Router
 
-  return (
-    <div>
-      {showWelcomeMessage && (
-        <div className="text-center p-10">
-          <h1 className="text-4xl font-bold mb-4">Welcome to CineNiche</h1>
-          <p className="mb-6">Your curated hub for niche movies & shows</p>
-          <div className="flex justify-center gap-4">
-            <Link to="/login" className="btn-primary">Login</Link>
-            <Link to="/create-account" className="btn-secondary">Create Account</Link>
-            <Link to="/movie" className="btn-primary">Movie Page</Link>
-          </div>
-          <footer className="text-center mt-5 mb-3">
-            <Link to="/privacy" className="text-decoration-none text-muted">Privacy Policy</Link>
-          </footer>
+    // Only show the welcome message on the home page (/)
+    const showWelcomeMessage = location.pathname === '/';
+
+    useEffect(() => {
+        // Add or remove the 'home-page' class depending on the route
+        if (location.pathname === '/') {
+            document.body.classList.add('home-page');
+            document.body.classList.remove('default-background');
+        } else {
+            document.body.classList.add('default-background');
+            document.body.classList.remove('home-page');
+        }
+    }, [location]);
+
+    return (
+        <div className="body">
+            {/* Conditionally render the welcome message only on the home page */}
+            {showWelcomeMessage && (
+                <div className="word">
+                    <h1 className="text-4xl font-bold mb-4">Welcome to CineNiche</h1>
+                    <p className="mb-6">Your curated hub for niche movies & shows</p>
+                    <div className="flex justify-center gap-4">
+                        <Link to="/login" className="btn-primary">
+                            Login
+                        </Link>
+                    </div>
+                    <div>
+                        <Link to="/create-account" className="btn-secondary">
+                            Create Account
+                        </Link>
+                    </div>
+
+                    {/* Fixed footer */}
+                    <footer className="footer-fixed">
+                        <h6>
+                            CineNiche--
+                            <Link to="/privacy" className="footer-link">
+                                Privacy Policy
+                            </Link>
+                        </h6>
+                    </footer>
+                </div>
+            )}
+
+            {/* Define the routes for the pages */}
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/create-account" element={<CreateAccountPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+
+                <Route
+                    path="/movie"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['User', 'Admin']}>
+                                <MoviePage />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route
+                    path="/manage-movies"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['Admin']}>
+                                <ManageMovies />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route
+                    path="/new-user"
+                    element={
+                        <AuthorizeView>
+                            <NewUserForm />
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route path="/unauthorized" element={<h1>403 – Unauthorized</h1>} />
+                
+                <Route
+                    path="/all-movies"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['User', 'Admin']}>
+                                <AllMovies />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route
+                    path="/profile"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['User', 'Admin']}>
+                                <ProfilePage />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+                
+            </Routes>
         </div>
-      )}
-
-      
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/create-account" element={<CreateAccountPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-
-        {/* 🔐 PROTECTED ROUTES ONLY */}
-        <Route
-          path="/movie"
-          element={
-            <AuthorizeView>
-              <RequireRole roles={['User', 'Admin']}>
-                <MoviePage />
-              </RequireRole>
-            </AuthorizeView>
-          }
-        />
-
-        <Route
-          path="/manage-movies"
-          element={
-            <AuthorizeView>
-              <RequireRole roles={['Admin']}>
-                <ManageMovies />
-              </RequireRole>
-            </AuthorizeView>
-          }
-        />
-
-        <Route
-          path="/new-user"
-          element={
-            <AuthorizeView>
-              <NewUserForm />
-            </AuthorizeView>
-          }
-        />
-
-        <Route path="/unauthorized" element={<h1>403 – Unauthorized</h1>} />
-      </Routes>
-
-    </div>
-  );
+    );
 }
 
 function AppWrapper() {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    // Slight delay so browser stores cookie before auth ping
-    const timer = setTimeout(() => setReady(true), 200); // ⏱️ 200ms delay
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <Router>
-      {ready ? <App /> : <p>Loading...</p>}
-    </Router>
-  );
+    return (
+        <Router>
+            <App /> {/* Wrap App component with Router */}
+        </Router>
+    );
 }
 
 export default AppWrapper;

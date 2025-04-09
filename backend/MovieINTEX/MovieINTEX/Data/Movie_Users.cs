@@ -7,6 +7,7 @@ namespace MovieINTEX.Data
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("user_id")] // <-- tell EF Core the actual column name in SQLite
         public int UserId { get; set; }
         public string IdentityUserId { get; set; }
 
@@ -18,25 +19,22 @@ namespace MovieINTEX.Data
         public required string City { get; set; }
         public required string State { get; set; }
         public required string Zip { get; set; }
-
         public bool Netflix { get; set; }
         [Column("Amazon Prime")]
         public bool AmazonPrime { get; set; }
+
+        [Column("Apple TV+")]
+        public bool AppleTVPlus { get; set; }
 
         [Column("Disney+")]
         public bool DisneyPlus { get; set; }
 
         [Column("Paramount+")]
         public bool ParamountPlus { get; set; }
-
         public bool Max { get; set; }
         public bool Hulu { get; set; }
-
-        [Column("Apple TV+")]
-        public bool AppleTvPlus { get; set; }
         public bool Peacock { get; set; }
-        
-        [Column("favorite_movie")] 
+        [Column("favorite_movie")]
         public string? FavoriteMovie { get; set; }
 
         public bool Action { get; set; }
@@ -71,6 +69,7 @@ namespace MovieINTEX.Data
         public bool DramaTV { get; set; }
         public bool TalkShowTVComedies { get; set; }
         public bool Thrillers { get; set; }
+
 
     }
 }

@@ -12,38 +12,43 @@ const ManageMovies: React.FC = () => {
   const [editingMovie, setEditingMovie] = useState<
     (Partial<Movie> & { durationValue?: string; durationUnit?: string }) | null
   >(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const genreToKey = (genre: string) => genre.toLowerCase().replace(/\s+/g, '');
 
-  fetch('https://localhost:5000/Movie/all-movies') // Make sure this points to your backend API
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return res.json();
-    })
-    .then((data) => {
-      console.log('Fetched movies:', data);
-      setMovies(data);
-    })
-    .catch((error) => {
-      console.error('Error fetching movies:', error);
-      alert('Failed to fetch movies: ' + error.message);
-    });
+  useEffect(() => {
+    fetch(
+      `https://localhost:5000/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then((data) => {
+        console.log('Fetched movies:', data.movies);
+        setMovies(data.movies);
+        setTotalPages(Math.ceil(data.total / pageSize));
+      })
+      .catch((error) => {
+        console.error('Error fetching movies:', error);
+        alert('Failed to fetch movies: ' + error.message);
+      });
+  }, [currentPage, pageSize]);
 
-  const totalPages = Math.ceil(movies.length / pageSize);
-  const currentMovies = movies.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  //const totalPages = Math.ceil(movies.length / pageSize);
+  const currentMovies = movies;
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this movie?')) {
-      fetch(`/Movie/DeleteMovie/${id}`, {
+      fetch(`https://localhost:5000/Movie/DeleteMovie/${id}`, {
         method: 'DELETE',
       })
-        .then((response) => response.json())
-        .then(() => {
-          // Update the frontend after deletion
-          setMovies(movies.filter((m) => m.show_id !== id));
+        .then((response) => {
+          if (response.ok) {
+            // Update the frontend after deletion
+            setMovies(movies.filter((m) => m.show_id !== id));
+          } else {
+            console.error('Error deleting movie:', response.statusText);
+          }
         })
         .catch((error) => {
           console.error('Error deleting movie:', error);
@@ -54,25 +59,45 @@ const ManageMovies: React.FC = () => {
   const handleSave = () => {
     if (!editingMovie) return;
 
-    // Concatenate durationValue and durationUnit into a single string
-    const duration = `${editingMovie.durationValue} ${editingMovie.durationUnit}`;
+    const isNew = editingMovie.show_id === undefined;
 
-    fetch(`/Movie/UpdateMovie/${editingMovie.show_id}`, {
-      method: 'PUT',
+    const duration = `${editingMovie.durationValue} ${editingMovie.durationUnit}`;
+    const payload = {
+      ...editingMovie,
+      duration,
+    };
+
+    const url = isNew
+      ? 'https://localhost:5000/Movie/AddMovie'
+      : `https://localhost:5000/Movie/UpdateMovie/${editingMovie.show_id}`;
+    const method = isNew ? 'POST' : 'PUT';
+
+    fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...editingMovie,
-        duration, // Save the concatenated string as the duration
-      }),
+      body: JSON.stringify(payload),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to ${isNew ? 'add' : 'update'} movie.`);
+        }
+        return res.json();
+      })
       .then((data) => {
-        // Update the frontend movie list
-        setMovies(
-          movies.map((movie) =>
-            movie.show_id === editingMovie.show_id ? data : movie
-          )
-        );
+        if (isNew) {
+          setMovies((prev) => [...prev, data]);
+        } else {
+          setMovies((prev) =>
+            prev.map((movie) =>
+              movie.show_id === editingMovie.show_id ? data : movie
+            )
+          );
+        }
+        setShowModal(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert(err.message);
       });
   };
 
@@ -144,59 +169,95 @@ const ManageMovies: React.FC = () => {
           </Button>
         </div>
 
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Director</th>
-              <th>Year</th>
-              <th>Rating</th>
-              <th>Duration</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentMovies.map((movie) => (
-              <tr key={movie.show_id}>
-                <td>{movie.title}</td>
-                <td>{movie.director}</td>
-                <td>{movie.release_year}</td>
-                <td>{movie.rating}</td>
-                <td>{movie.duration}</td>
-                <td>
-                  <Button
-                    size="sm"
-                    variant="warning"
-                    onClick={() => {
-                      setEditingMovie(movie);
-                      setShowModal(true);
-                    }}
-                  >
-                    Edit
-                  </Button>{' '}
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDelete(movie.show_id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
+        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Director</th>
+                <th>Year</th>
+                <th>Rating</th>
+                <th>Duration</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {currentMovies.map((movie) => (
+                <tr key={movie.show_id}>
+                  <td>{movie.title}</td>
+                  <td>{movie.director}</td>
+                  <td>{movie.release_year}</td>
+                  <td>{movie.rating}</td>
+                  <td>{movie.duration}</td>
+                  <td>
+                    <Button
+                      size="sm"
+                      variant="warning"
+                      onClick={() => {
+                        setEditingMovie(movie);
+                        setShowModal(true);
+                      }}
+                    >
+                      Edit
+                    </Button>{' '}
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDelete(movie.show_id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+        <br></br>
+        <Pagination className="justify-content-center">
+          <Pagination.First
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          />
 
-        <Pagination>
-          {Array.from({ length: totalPages }, (_, idx) => (
-            <Pagination.Item
-              key={idx + 1}
-              active={idx + 1 === currentPage}
-              onClick={() => setCurrentPage(idx + 1)}
-            >
-              {idx + 1}
-            </Pagination.Item>
-          ))}
+          {Array.from({ length: totalPages }, (_, idx) => idx + 1)
+            .filter(
+              (page) =>
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 2 && page <= currentPage + 2)
+            )
+            .map((page, index, array) => {
+              const prevPage = array[index - 1];
+              const showEllipsis = prevPage && page - prevPage > 1;
+
+              return (
+                <React.Fragment key={page}>
+                  {showEllipsis && <Pagination.Ellipsis disabled />}
+                  <Pagination.Item
+                    active={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Pagination.Item>
+                </React.Fragment>
+              );
+            })}
+
+          <Pagination.Next
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          />
         </Pagination>
 
         <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -207,6 +268,19 @@ const ManageMovies: React.FC = () => {
           </Modal.Header>
           <Modal.Body>
             <Form>
+              {/* Other fields */}
+              <Form.Group className="mb-3">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  value={editingMovie?.title || ''}
+                  onChange={(e) =>
+                    setEditingMovie({
+                      ...editingMovie!,
+                      title: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
               {/* Type dropdown */}
               <Form.Group className="mb-3">
                 <Form.Label>Type</Form.Label>
@@ -219,34 +293,35 @@ const ManageMovies: React.FC = () => {
                     })
                   }
                 >
+                  <option>Select</option>
                   <option value="Movie">Movie</option>
                   <option value="TV-Series">TV-Series</option>
                 </Form.Select>
               </Form.Group>
 
-              {/* Genre multi-select */}
               <Form.Group className="mb-3">
                 <Form.Label>Genres</Form.Label>
                 <Form.Select
                   multiple
-                  value={Object.keys(editingMovie || {}).filter(
-                    (key) =>
-                      genreOptions.includes(key) &&
-                      editingMovie?.[key as keyof Movie]
+                  value={genreOptions.filter(
+                    (genre) =>
+                      (editingMovie as Record<string, any>)?.[genreToKey(genre)]
                   )}
                   onChange={(e) => {
                     const selectedGenres = Array.from(
                       e.target.selectedOptions,
                       (option) => option.value
                     );
+
+                    const updatedGenres: Record<string, boolean> = {};
+                    genreOptions.forEach((genre) => {
+                      const key = genreToKey(genre);
+                      updatedGenres[key] = selectedGenres.includes(genre);
+                    });
+
                     setEditingMovie({
                       ...editingMovie!,
-                      ...Object.fromEntries(
-                        selectedGenres.map((genre) => [
-                          genre.toLowerCase().replace(' ', ''),
-                          true,
-                        ])
-                      ),
+                      ...updatedGenres,
                     });
                   }}
                 >
@@ -258,17 +333,21 @@ const ManageMovies: React.FC = () => {
                 </Form.Select>
               </Form.Group>
 
-              {/* Other fields */}
+              {/* Release year input */}
               <Form.Group className="mb-3">
-                <Form.Label>Title</Form.Label>
+                <Form.Label>Release Year</Form.Label>
                 <Form.Control
-                  value={editingMovie?.title || ''}
-                  onChange={(e) =>
+                  type="number"
+                  placeholder="Enter Release Year"
+                  value={editingMovie?.release_year || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const releaseYear = value ? parseInt(value, 10) : undefined; // convert to number or undefined if empty
                     setEditingMovie({
                       ...editingMovie!,
-                      title: e.target.value,
-                    })
-                  }
+                      release_year: releaseYear, //set the parsed number
+                    });
+                  }}
                 />
               </Form.Group>
 
@@ -324,6 +403,7 @@ const ManageMovies: React.FC = () => {
                 >
                   {editingMovie?.type === 'Movie' ? (
                     <>
+                      <option>Select</option>
                       <option value="G">G</option>
                       <option value="PG">PG</option>
                       <option value="PG-13">PG-13</option>
@@ -333,6 +413,7 @@ const ManageMovies: React.FC = () => {
                     </>
                   ) : editingMovie?.type === 'TV-Series' ? (
                     <>
+                      <option>Select</option>
                       <option value="TV-G">TV-G</option>
                       <option value="TV-14">TV-14</option>
                       <option value="TV-PG">TV-PG</option>
@@ -368,6 +449,7 @@ const ManageMovies: React.FC = () => {
                       })
                     }
                   >
+                    <option>Select</option>
                     <option value="Minutes">Minutes</option>
                     <option value="Season(s)">Season(s)</option>
                   </Form.Select>

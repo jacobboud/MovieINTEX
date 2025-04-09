@@ -5,7 +5,6 @@
         public string Title { get; set; }
         public string ShowId { get; set; }
         public string Description { get; set; }
-        public string ImageUrl { get; set; } // e.g., "/Movie Posters/The Life List.jpg"
     }
 
     public class CarouselDto
