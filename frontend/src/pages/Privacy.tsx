@@ -1,10 +1,19 @@
 // src/pages/Privacy.tsx
 //import React from 'react';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const PrivacyPage = () => {
+  useEffect(() => {
+    document.body.classList.add('privacy-page');
+    return () => {
+      document.body.classList.remove('privacy-page');
+    };
+  }, []);
+
   return (
     <div className="container my-5">
-      <div className="p-4 shadow rounded bg-white">
+      <div className="p-4 shadow rounded bg-white privacy-container">
         <h1 className="mb-4 text-center">Privacy Policy for CineNiche</h1>
         <p>
           <strong>Effective Date:</strong> 04/07/2025
@@ -122,6 +131,15 @@ const PrivacyPage = () => {
           </p>
         </section>
       </div>
+      {/* Fixed footer */}
+      <footer className="footer-fixed">
+        <h6>
+          CineNiche--
+          <Link to="/privacy" className="footer-link">
+            Privacy Policy
+          </Link>
+        </h6>
+      </footer>
     </div>
   );
 };
