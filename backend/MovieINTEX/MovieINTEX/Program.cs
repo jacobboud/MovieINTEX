@@ -4,6 +4,7 @@ using MovieINTEX.Data;
 using System.Security.Claims;
 using MovieINTEX.Models.Dto;
 using MovieINTEX.Services;
+using Microsoft.Extensions.FileProviders;
 
 
 var builder = WebApplication.CreateBuilder(args);

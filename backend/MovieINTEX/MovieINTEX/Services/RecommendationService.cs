@@ -2,11 +2,7 @@
 using MovieINTEX.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using NuGet.Packaging.Signing;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System;
+using System.Data.Common;
 
 namespace MovieINTEX.Services
 {
@@ -18,6 +14,43 @@ namespace MovieINTEX.Services
         {
             _context = context;
         }
+
+        private static readonly Dictionary<string, string> CategoryTableMapping = new()
+        {
+            ["AnimeSeries"] = "user_recommendations_anime_series_international_tv_shows",
+            ["BritishSeries"] = "user_recommendations_british_tv_shows_docuseries_international_tv_shows",
+            ["Comedies"] = "user_recommendations_comedies",
+            ["Children"] = "user_recommendations_children",
+            ["CrimeTVShowsDocuseries"] = "user_recommendations_crime_tv_shows_docuseries",
+            ["Documentaries"] = "user_recommendations_documentaries",
+            ["Docuseries"] = "user_recommendations_docuseries",
+            ["Dramas"] = "user_recommendations_dramas",
+            ["Fantasy"] = "user_recommendations_fantasy",
+            ["Family"] = "user_recommendations_family_movies",
+            ["Horror"] = "user_recommendations_horror_movies",
+            ["InternationalComedies"] = "user_recommendations_comedies_international_movies",
+            ["InternationalComedyDramas"] = "user_recommendations_comedies_dramas_international_movies",
+            ["InternationalDocumentaries"] = "user_recommendations_documentaries_international_movies",
+            ["InternationalDramas"] = "user_recommendations_dramas_international_movies",
+            ["InternationalTVRomanticDramas"] = "user_recommendations_international_tv_shows_romantic_tv_shows_tv_dramas",
+            ["InternationalThrillers"] = "user_recommendations_international_movies_thrillers",
+            ["Kids"] = "user_recommendations_kids'_tv",
+            ["Language"] = "user_recommendations_language_tv_shows",
+            ["Musicals"] = "user_recommendations_musicals",
+            ["NatureTV"] = "user_recommendations_nature_tv",
+            ["RealityTV"] = "user_recommendations_reality_tv",
+            ["RomanticComedies"] = "user_recommendations_comedies_romantic_movies",
+            ["RomanticDramas"] = "user_recommendations_dramas_romantic_movies",
+            ["Spirituality"] = "user_recommendations_spirituality",
+            ["TalkShowTVComedies"] = "user_recommendations_talk_shows_tv_comedies",
+            ["Thrillers"] = "user_recommendations_thrillers",
+            ["Action"] = "user_recommendations_action",
+            ["ActionTV"] = "user_recommendations_tv_action",
+            ["Adventure"] = "user_recommendations_adventure",
+            ["ComedyTV"] = "user_recommendations_tv_comedies",
+            ["DramaTV"] = "user_recommendations_tv_dramas"
+        };
+
 
         public List<MovieDto> SearchMovies(string query)
         {
@@ -36,7 +69,6 @@ namespace MovieINTEX.Services
                 })
                 .ToList();
         }
-
 
         public List<MovieDto> GetAllMovies()
         {
@@ -63,16 +95,8 @@ namespace MovieINTEX.Services
                 .OrderBy(m => m.title)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(m => new Movie_Titles
-                {
-                    show_id = m.show_id,
-                    title = m.title,
-                    release_year = m.release_year,
-                    description = m.description
-                })
                 .ToList();
         }
-
 
         public List<string> GetAllMovieCategories()
         {
@@ -90,273 +114,232 @@ namespace MovieINTEX.Services
 
         public Movie_Titles AddMovie(Movie_Titles movie)
         {
-            // Generate the next show_id by finding the max existing show_id in the database
             var maxShowId = _context.movies_titles
-                .Where(m => m.show_id.StartsWith("s")) // Only consider show_ids starting with "S"
+                .Where(m => m.show_id.StartsWith("s"))
                 .Select(m => m.show_id)
                 .OrderByDescending(s => s)
                 .FirstOrDefault();
 
-            // If no movies exist, start from "S1"
             int nextId = 1;
             if (!string.IsNullOrEmpty(maxShowId))
             {
-                // Extract the numeric part of the show_id, assuming it's in the form "S123"
-                var numericPart = maxShowId.Substring(1); // Remove the "S" prefix
+                var numericPart = maxShowId.Substring(1);
                 if (int.TryParse(numericPart, out int currentId))
                 {
-                    nextId = currentId + 1; // Increment the ID
+                    nextId = currentId + 1;
                 }
             }
 
-            // Assign the new show_id (e.g., "S123")
             movie.show_id = "s" + nextId;
-
-            // Map the incoming movie data to the Movie_Titles entity
-            var entity = new Movie_Titles
-            {
-                show_id = movie.show_id,  // Explicitly set the show_id here
-                title = movie.title,
-                release_year = movie.release_year,
-                description = movie.description,
-                director = movie.director,
-                cast = movie.cast,
-                country = movie.country,
-                rating = movie.rating,
-                duration = movie.duration,
-                type = movie.type,
-                Action = movie.Action,
-                Adventure = movie.Adventure,
-                AnimeSeries = movie.AnimeSeries,
-                BritishSeries = movie.BritishSeries,
-                Children = movie.Children,
-                Comedies = movie.Comedies,
-                InternationalComedyDramas = movie.InternationalComedyDramas,
-                InternationalComedies = movie.InternationalComedies,
-                RomanticComedies = movie.RomanticComedies,
-                CrimeTVShowsDocuseries = movie.CrimeTVShowsDocuseries,
-                Documentaries = movie.Documentaries,
-                InternationalDocumentaries = movie.InternationalDocumentaries,
-                Docuseries = movie.Docuseries,
-                Dramas = movie.Dramas,
-                InternationalDramas = movie.InternationalDramas,
-                RomanticDramas = movie.RomanticDramas,
-                Family = movie.Family,
-                Fantasy = movie.Fantasy,
-                Horror = movie.Horror,
-                InternationalThrillers = movie.InternationalThrillers,
-                InternationalTVRomanticDramas = movie.InternationalTVRomanticDramas,
-                Kids = movie.Kids,
-                Language = movie.Language,
-                Musicals = movie.Musicals,
-                NatureTV = movie.NatureTV,
-                RealityTV = movie.RealityTV,
-                Spirituality = movie.Spirituality,
-                ActionTV = movie.ActionTV,
-                ComedyTV = movie.ComedyTV,
-                DramaTV = movie.DramaTV,
-                TalkShowTVComedies = movie.TalkShowTVComedies,
-                Thrillers = movie.Thrillers
-            };
-
-            // Save the movie entity to the database
-            _context.movies_titles.Add(entity);
+            _context.movies_titles.Add(movie);
             _context.SaveChanges();
-
-            // Return the added movie (with show_id now populated)
-            movie.show_id = entity.show_id;
-            return movie; // Return 200 OK with the added movie
+            return movie;
         }
-
 
         public Movie_Titles? UpdateMovie(string id, Movie_Titles movie)
         {
             var existing = _context.movies_titles.FirstOrDefault(m => m.show_id == id);
-            if (existing == null)
-                return null;
+            if (existing == null) return null;
 
-            existing.title = movie.title;
-            existing.release_year = movie.release_year;
-            existing.description = movie.description;
-            existing.director = movie.director;
-            existing.cast = movie.cast;
-            existing.country = movie.country;
-            existing.rating = movie.rating;
-            existing.duration = movie.duration;
-            existing.type = movie.type;
-            // Update genres here too if applicable
-            // Genre flags (mapping directly)
-            existing.Action = movie.Action;
-            existing.Adventure = movie.Adventure;
-            existing.AnimeSeries = movie.AnimeSeries;
-            existing.BritishSeries = movie.BritishSeries;
-            existing.Children = movie.Children;
-            existing.Comedies = movie.Comedies;
-            existing.InternationalComedyDramas = movie.InternationalComedyDramas;
-            existing.InternationalComedies = movie.InternationalComedies;
-            existing.RomanticComedies = movie.RomanticComedies;
-            existing.CrimeTVShowsDocuseries = movie.CrimeTVShowsDocuseries;
-            existing.Documentaries = movie.Documentaries;
-            existing.InternationalDocumentaries = movie.InternationalDocumentaries;
-            existing.Docuseries = movie.Docuseries;
-            existing.Dramas = movie.Dramas;
-            existing.InternationalDramas = movie.InternationalDramas;
-            existing.RomanticDramas = movie.RomanticDramas;
-            existing.Family = movie.Family;
-            existing.Fantasy = movie.Fantasy;
-            existing.Horror = movie.Horror;
-            existing.InternationalThrillers = movie.InternationalThrillers;
-            existing.InternationalTVRomanticDramas = movie.InternationalTVRomanticDramas;
-            existing.Kids = movie.Kids;
-            existing.Language = movie.Language;
-            existing.Musicals = movie.Musicals;
-            existing.NatureTV = movie.NatureTV;
-            existing.RealityTV = movie.RealityTV;
-            existing.Spirituality = movie.Spirituality;
-            existing.ActionTV = movie.ActionTV;
-            existing.ComedyTV = movie.ComedyTV;
-            existing.DramaTV = movie.DramaTV;
-            existing.TalkShowTVComedies = movie.TalkShowTVComedies;
-            existing.Thrillers = movie.Thrillers;
-
+            _context.Entry(existing).CurrentValues.SetValues(movie);
             _context.SaveChanges();
-
             return movie;
         }
 
         public bool DeleteMovie(string id)
         {
             var movie = _context.movies_titles.FirstOrDefault(m => m.show_id == id);
-            if (movie == null)
-                return false;
+            if (movie == null) return false;
 
             _context.movies_titles.Remove(movie);
             _context.SaveChanges();
             return true;
         }
 
-        public async Task<List<CarouselDto>> GetCarouselsForUserAsync(int userId)
+        private async Task<List<string>> GetRecommendationShowIds(string sql)
         {
-            var carousels = new List<CarouselDto>();
+            var result = new List<string>();
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            for (int i = 1; i <= 10; i++)
+                            {
+                                var columnName = $"recommended_show_{i}_id";
+                                if (!reader.IsDBNull(reader.GetOrdinal(columnName)))
+                                {
+                                    result.Add(reader.GetString(reader.GetOrdinal(columnName)));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        public async Task<CarouselsResponseDto?> GetCarouselsWithUserInfoAsync(int userId)
+        {
             var user = await _context.movies_users.FindAsync(userId);
-            if (user == null) return carousels;
+            if (user == null) return null;
 
             var ratedShowIds = await _context.movies_ratings
                 .Where(r => r.UserId == userId)
-                .Select(r => r.ShowId.ToString()) // <-- ensure string type
+                .Select(r => r.ShowId)
                 .ToListAsync();
-
 
             var highRatedShows = await _context.movies_ratings
                 .Where(r => r.UserId == userId && r.Rating >= 4)
-                .Select(r => r.ShowId.ToString()) // <-- convert to string
+                .Select(r => r.ShowId)
                 .ToListAsync();
 
             var titlesDict = await _context.movies_titles.ToDictionaryAsync(t => t.show_id);
 
-            // Helper method to map show IDs to CarouselItems
             List<CarouselItemDto> MapShowIds(IEnumerable<string> showIds)
             {
-                return showIds.Where(id => titlesDict.ContainsKey(id))
+                return showIds
+                    .Where(id => titlesDict.ContainsKey(id))
                     .Select(id => new CarouselItemDto
                     {
                         ShowId = id,
                         Title = titlesDict[id].title,
-                        Description = titlesDict[id].description,
-                        ImageUrl = $"/Movie Posters/{titlesDict[id].title}.jpg"
+                        Description = titlesDict[id].description
                     }).ToList();
             }
 
+            var carousels = new List<CarouselDto>();
+
             // 1. Recommended for You
-            var recAll = await _context.Set<dynamic>().FromSqlRaw($"SELECT * FROM user_recommendations_all WHERE user_id = {userId}").FirstOrDefaultAsync();
-            if (recAll != null)
+            var allRecs = await GetRecommendationShowIds($"SELECT * FROM user_recommendations_all WHERE user_id = {userId}");
+            if (allRecs.Count > 0)
             {
-                var showIds = Enumerable.Range(1, 10).Select(i => (string)recAll[$"recommended_show_{i}_id"]);
-                carousels.Add(new CarouselDto { Title = "Recommended for You", Items = MapShowIds(showIds) });
+                carousels.Add(new CarouselDto { Title = "Recommended for You", Items = MapShowIds(allRecs) });
             }
 
-            // 2. Lovers Also Loved...
+            // 2. {Favorite Movie} Lovers Also Loved
             if (!string.IsNullOrEmpty(user.FavoriteMovie) && titlesDict.ContainsKey(user.FavoriteMovie))
             {
-                var row = await _context.Set<dynamic>().FromSqlRaw($"SELECT * FROM show_recommendations WHERE show_id = '{user.FavoriteMovie}'").FirstOrDefaultAsync();
-                if (row != null)
+                var favEntry = titlesDict[user.FavoriteMovie];
+                var safeShowId = user.FavoriteMovie.Replace("'", "''");
+                var favMovieRecs = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'");
+
+                Console.WriteLine($"[FavoriteMovie] show_id: {safeShowId}, title: {favEntry.title}, recs: {favMovieRecs.Count}");
+
+                if (favMovieRecs.Count > 0)
                 {
-                    var showIds = Enumerable.Range(1, 10).Select(i => (string)row[$"recommended_show_{i}_id"]);
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"{titlesDict[user.FavoriteMovie].title} Lovers also Loved...",
-                        Items = MapShowIds(showIds)
+                        Title = $"{favEntry.title} Lovers also Loved",
+                        Items = MapShowIds(favMovieRecs)
                     });
                 }
             }
 
-            // 3. Because You Liked {title}
+
+
+
+            // 3. Because you liked {Movie}
             foreach (var showId in highRatedShows)
             {
-                if (!titlesDict.ContainsKey(showId)) continue;
-                var row = await _context.Set<dynamic>().FromSqlRaw($"SELECT * FROM show_recommendations WHERE show_id = '{showId}'").FirstOrDefaultAsync();
-                if (row != null)
+                // Skip if this is also the favorite movie
+                if (user.FavoriteMovie == showId)
+                    continue;
+
+                if (!titlesDict.ContainsKey(showId))
                 {
-                    var showIds = Enumerable.Range(1, 10).Select(i => (string)row[$"recommended_show_{i}_id"]);
+                    Console.WriteLine($"[HighRated] show_id not found in titlesDict: {showId}");
+                    continue;
+                }
+
+                Console.WriteLine($"[HighRated] Trying recommendations for show_id: {showId}, title: {titlesDict[showId].title}");
+                var safeShowId = showId.Replace("'", "''");
+                var row = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'");
+
+                Console.WriteLine($"[HighRated] Found {row.Count} recommendations for {titlesDict[showId].title}");
+
+                if (row.Count > 0)
+                {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"Because you liked {titlesDict[showId].title}",
-                        Items = MapShowIds(showIds)
+                        Title = $"Because You Liked {titlesDict[showId].title}",
+                        Items = MapShowIds(row)
                     });
                 }
             }
 
+
             // 4. {Category} Movies You Might Like
-            var categories = new[] { "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies", "InternationalComedyDramas", "InternationalComedies", "RomanticComedies", "CrimeTVShowsDocuseries", "Documentaries", "InternationalDocumentaries", "Docuseries", "Dramas", "InternationalDramas", "RomanticDramas", "Family", "Fantasy", "Horror", "InternationalThrillers", "InternationalTVRomanticDramas", "Kids", "Language", "Musicals", "NatureTV", "RealityTV", "Spirituality", "ActionTV", "ComedyTV", "DramaTV", "TalkShowTVComedies", "Thrillers" };
+            var categories = new[] {
+                "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies",
+                "InternationalComedyDramas", "InternationalComedies", "RomanticComedies", "CrimeTVShowsDocuseries",
+                "Documentaries", "InternationalDocumentaries", "Docuseries", "Dramas", "InternationalDramas",
+                "RomanticDramas", "Family", "Fantasy", "Horror", "InternationalThrillers",
+                "InternationalTVRomanticDramas", "Kids", "Language", "Musicals", "NatureTV", "RealityTV",
+                "Spirituality", "ActionTV", "ComedyTV", "DramaTV", "TalkShowTVComedies", "Thrillers"
+            };
 
             foreach (var category in categories)
             {
                 var prop = typeof(Movie_Users).GetProperty(category);
                 if (prop != null && prop.PropertyType == typeof(bool) && (bool)(prop.GetValue(user) ?? false))
                 {
-                    var recs = await _context.Set<dynamic>().FromSqlRaw($"SELECT * FROM user_recommendations_{category.ToLower()} WHERE user_id = {userId}").FirstOrDefaultAsync();
-                    if (recs != null)
+                    if (CategoryTableMapping.TryGetValue(category, out var tableName))
                     {
-                        var showIds = Enumerable.Range(1, 10).Select(i => (string)recs[$"recommended_show_{i}_id"]);
-                        carousels.Add(new CarouselDto
+                        var catRecs = await GetRecommendationShowIds($"SELECT * FROM {tableName} WHERE user_id = {userId}");
+                        if (catRecs.Count > 0)
                         {
-                            Title = $"{category} Movies You Might Like",
-                            Items = MapShowIds(showIds)
-                        });
+                            carousels.Add(new CarouselDto
+                            {
+                                Title = $"Movies You Might Like - {category}",
+                                Items = MapShowIds(catRecs)
+                            });
+                        }
                     }
                 }
             }
 
-            // 5. Other {streaming service} Watchers Enjoyed
+            // 5. Other {Streaming Service} Watchers Enjoyed
             var services = new[] { "Netflix", "Amazon Prime", "Disney+", "Paramount+", "Max", "Hulu", "Apple TV+", "Peacock" };
 
             foreach (var service in services)
             {
-                var prop = typeof(Movie_Users).GetProperty(service);
+                var prop = typeof(Movie_Users).GetProperty(service.Replace(" ", "").Replace("+", "Plus"));
                 if (prop != null && prop.PropertyType == typeof(bool) && (bool)(prop.GetValue(user) ?? false))
                 {
-                    var row = await _context.Set<dynamic>().FromSqlRaw($"SELECT * FROM show_recommendations_streaming WHERE streaming_service = '{service}'").FirstOrDefaultAsync();
-                    if (row != null)
+                    var streamRecs = await GetRecommendationShowIds($"SELECT * FROM show_recommendations_streaming WHERE streaming_service = '{service}'");
+                    if (streamRecs.Count > 0)
                     {
-                        var showIds = Enumerable.Range(1, 10).Select(i => (string)row[$"recommended_show_{i}_id"]);
                         carousels.Add(new CarouselDto
                         {
                             Title = $"Other {service} Watchers Enjoyed",
-                            Items = MapShowIds(showIds)
+                            Items = MapShowIds(streamRecs)
                         });
                     }
                 }
             }
 
             // 6. Try a Random Movie
-            var allShows = titlesDict.Keys.Except(ratedShowIds).OrderBy(_ => Guid.NewGuid()).Take(20);
+            var allShows = titlesDict.Keys
+                .Where(k => !ratedShowIds.Contains(k))
+                .OrderBy(_ => Guid.NewGuid())
+                .Take(20);
             carousels.Add(new CarouselDto
             {
                 Title = "Try a Random Movie",
                 Items = MapShowIds(allShows)
             });
 
-            return carousels;
+            return new CarouselsResponseDto
+            {
+                Name = user.Name,
+                Carousels = carousels
+            };
         }
 
     }

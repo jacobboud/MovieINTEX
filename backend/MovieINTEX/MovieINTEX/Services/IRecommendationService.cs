@@ -14,7 +14,7 @@ namespace MovieINTEX.Services
         int GetTotalMovieCount();
 
         List<string> GetAllMovieCategories();
-        Task<List<CarouselDto>> GetCarouselsForUserAsync(int userId);
+        Task<CarouselsResponseDto?> GetCarouselsWithUserInfoAsync(int userId);
 
 
         Movie_Titles AddMovie(Movie_Titles movie);
