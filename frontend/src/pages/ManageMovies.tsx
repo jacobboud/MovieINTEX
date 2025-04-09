@@ -195,7 +195,15 @@ const ManageMovies: React.FC = () => {
                       size="sm"
                       variant="warning"
                       onClick={() => {
-                        setEditingMovie(movie);
+                        const [durationValue, ...durationRest] =
+                          movie.duration?.split(' ') || [];
+                        const durationUnit = durationRest.join(' ');
+
+                        setEditingMovie({
+                          ...movie,
+                          durationValue,
+                          durationUnit,
+                        });
                         setShowModal(true);
                       }}
                     >
@@ -442,7 +450,7 @@ const ManageMovies: React.FC = () => {
                     }
                   />
                   <Form.Select
-                    value={editingMovie?.durationUnit || 'Minutes'} // Default to 'Minutes'
+                    value={editingMovie?.durationUnit || 'Select'} // Default to 'Minutes'
                     onChange={(e) =>
                       setEditingMovie({
                         ...editingMovie!,
