@@ -89,10 +89,37 @@ export default function MoviePage() {
         padding: '20px',
       }}
     >
-      <div className="text-right mb-4">
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '15px',
+          marginBottom: '20px',
+        }}
+      >
+        <Link
+          to="/all-movies"
+          style={{
+            backgroundColor: '#1db954',
+            color: '#fff',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          Browse All Movies
+        </Link>
         <Link
           to="/profile"
-          className="bg-white text-black px-3 py-1 rounded hover:bg-gray-200"
+          style={{
+            backgroundColor: '#fff',
+            color: '#000',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
         >
           Edit Profile
         </Link>
