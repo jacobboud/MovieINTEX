@@ -32,6 +32,7 @@ export default function MoviePage() {
         withCredentials: true,
       })
       .then((res) => {
+        console.log("🎬 Carousel Response:", res.data);
         setUserName(res.data.name);
         setCarousels(res.data.carousels);
       })
