@@ -4,6 +4,9 @@
 **/bin/
 **/obj/
 
+*.sqlite-shm
+*.sqlite-wal
+
 
 .vs/
 *.suo
