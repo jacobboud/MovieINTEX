@@ -17,6 +17,7 @@ import AllMovies from './pages/AllMovies';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect } from 'react';
 import ProfilePage from './pages/ProfilePage';
+import MovieDetail from './components/MovieDetail';
 
 function App() {
   const location = useLocation(); // This hook now works correctly because of Router
@@ -75,6 +76,7 @@ function App() {
         <Route path="/new-user" element={<NewUserForm />} />
         <Route path="/all-movies" element={<AllMovies />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/movie/:showId" element={<MovieDetail />} />
       </Routes>
     </div>
   );
