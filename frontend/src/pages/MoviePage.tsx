@@ -321,6 +321,7 @@ export default function MoviePage() {
               </h2>
             )}
 
+            {/* Carousel row */}
             <div
               style={{
                 display: 'flex',
@@ -330,6 +331,7 @@ export default function MoviePage() {
               }}
             >
               {visibleItems.map((item) => {
+                // Skip hero item from carousel
                 if (index === 0 && item.showId === heroMovie?.showId)
                   return null;
 
