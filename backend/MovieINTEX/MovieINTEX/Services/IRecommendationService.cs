@@ -9,13 +9,13 @@ namespace MovieINTEX.Services
 
         List<MovieDto> GetAllMovies();
 
-        List<Movie_Titles> GetPagedMovies(int page, int pageSize);
+        List<Movie_Titles> GetPagedMovies(int page, int pageSize, string? sortBy = null, string? category = null);
 
-        int GetTotalMovieCount();
+        int GetTotalMovieCount(string? category = null, string? sortBy = null);
 
         List<string> GetAllMovieCategories();
-        Task<CarouselsResponseDto?> GetCarouselsWithUserInfoAsync(int userId);
 
+        Task<CarouselsResponseDto?> GetCarouselsWithUserInfoAsync(int userId);
 
         Movie_Titles AddMovie(Movie_Titles movie);
 

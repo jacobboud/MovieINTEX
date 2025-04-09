@@ -47,15 +47,48 @@ namespace MovieINTEX.Services
                 .ToList();
         }
 
-        public int GetTotalMovieCount()
+        public int GetTotalMovieCount(string? category = null, string? sortBy = null)
         {
-            return _context.movies_titles.Count();
+            var query = _context.movies_titles.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(m => EF.Property<bool>(m, category) == true);
+            }
+
+            if (sortBy == "NotRated")
+            {
+                query = query.Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id));
+            }
+
+            return query.Count();
         }
 
-        public List<Movie_Titles> GetPagedMovies(int page, int pageSize)
+        public List<Movie_Titles> GetPagedMovies(int page, int pageSize, string? sortBy = null, string? category = null)
         {
-            return _context.movies_titles
-                .OrderBy(m => m.title)
+            var query = _context.movies_titles.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(m => EF.Property<bool>(m, category) == true);
+            }
+
+            switch (sortBy)
+            {
+                case "NameDesc":
+                    query = query.OrderByDescending(m => m.title);
+                    break;
+                case "NotRated":
+                    query = query
+                        .Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id))
+                        .OrderBy(m => m.title);
+                    break;
+                default:
+                    query = query.OrderBy(m => m.title); // Name A–Z
+                    break;
+            }
+
+            return query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
@@ -215,14 +248,15 @@ namespace MovieINTEX.Services
             }
 
             // 4. {Category} Movies You Might Like
-            var categories = new[] {
-        "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies",
-        "InternationalComedyDramas", "InternationalComedies", "RomanticComedies", "CrimeTVShowsDocuseries",
-        "Documentaries", "InternationalDocumentaries", "Docuseries", "Dramas", "InternationalDramas",
-        "RomanticDramas", "Family", "Fantasy", "Horror", "InternationalThrillers",
-        "InternationalTVRomanticDramas", "Kids", "Language", "Musicals", "NatureTV", "RealityTV",
-        "Spirituality", "ActionTV", "ComedyTV", "DramaTV", "TalkShowTVComedies", "Thrillers"
-    };
+            var categories = new[]
+            {
+                "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies",
+                "InternationalComedyDramas", "InternationalComedies", "RomanticComedies", "CrimeTVShowsDocuseries",
+                "Documentaries", "InternationalDocumentaries", "Docuseries", "Dramas", "InternationalDramas",
+                "RomanticDramas", "Family", "Fantasy", "Horror", "InternationalThrillers",
+                "InternationalTVRomanticDramas", "Kids", "Language", "Musicals", "NatureTV", "RealityTV",
+                "Spirituality", "ActionTV", "ComedyTV", "DramaTV", "TalkShowTVComedies", "Thrillers"
+            };
 
             foreach (var category in categories)
             {
@@ -266,6 +300,7 @@ namespace MovieINTEX.Services
                 .Where(k => !ratedShowIds.Contains(k))
                 .OrderBy(_ => Guid.NewGuid())
                 .Take(20);
+
             carousels.Add(new CarouselDto
             {
                 Title = "Try a Random Movie",
@@ -278,6 +313,5 @@ namespace MovieINTEX.Services
                 Carousels = carousels
             };
         }
-
     }
 }
