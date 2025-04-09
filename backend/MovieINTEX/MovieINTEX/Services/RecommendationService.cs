@@ -235,7 +235,7 @@ namespace MovieINTEX.Services
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"{favEntry.title} Lovers also Loved...",
+                        Title = $"{favEntry.title} Lovers also Loved",
                         Items = MapShowIds(favMovieRecs)
                     });
                 }
@@ -247,6 +247,10 @@ namespace MovieINTEX.Services
             // 3. Because you liked {Movie}
             foreach (var showId in highRatedShows)
             {
+                // Skip if this is also the favorite movie
+                if (user.FavoriteMovie == showId)
+                    continue;
+
                 if (!titlesDict.ContainsKey(showId))
                 {
                     Console.WriteLine($"[HighRated] show_id not found in titlesDict: {showId}");
@@ -263,7 +267,7 @@ namespace MovieINTEX.Services
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"Because you liked {titlesDict[showId].title}",
+                        Title = $"Because You Liked {titlesDict[showId].title}",
                         Items = MapShowIds(row)
                     });
                 }
@@ -292,7 +296,7 @@ namespace MovieINTEX.Services
                         {
                             carousels.Add(new CarouselDto
                             {
-                                Title = $"{category} Movies You Might Like",
+                                Title = $"Movies You Might Like - {category}",
                                 Items = MapShowIds(catRecs)
                             });
                         }
