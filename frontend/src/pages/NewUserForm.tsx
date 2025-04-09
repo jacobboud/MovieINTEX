@@ -66,14 +66,52 @@ export default function NewUserForm() {
     );
   };
 
-  const handleSubmit = () => {
-    navigate('/movie', {
-      state: {
-        selectedMovie,
-        selectedServices,
-        selectedCategories,
-      },
-    });
+  const handleSubmit = async () => {
+    try {
+      // Submit favorite movie
+      if (selectedMovie) {
+        await axios.put(
+          'https://localhost:5000/api/user/favorite-movie',
+          selectedMovie.showId,
+          {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+          }
+        );
+      }
+
+      // Submit streaming services
+      const servicesPayload: Record<string, boolean> = {};
+      streamingServices.forEach(
+        (service) =>
+          (servicesPayload[service] = selectedServices.includes(service))
+      );
+
+      await axios.put(
+        'https://localhost:5000/api/user/services',
+        servicesPayload,
+        { withCredentials: true }
+      );
+
+      // Submit categories
+      const categoryPayload: Record<string, boolean> = {};
+      categories.forEach(
+        (category) =>
+          (categoryPayload[category] = selectedCategories.includes(category))
+      );
+
+      await axios.put(
+        'https://localhost:5000/api/user/categories',
+        categoryPayload,
+        { withCredentials: true }
+      );
+
+      // Navigate to movie page
+      navigate('/movie');
+    } catch (error) {
+      console.error('Error submitting new user info:', error);
+      alert('Something went wrong. Please try again.');
+    }
   };
 
   useEffect(() => {

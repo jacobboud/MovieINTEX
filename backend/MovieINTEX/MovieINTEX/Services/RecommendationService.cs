@@ -210,7 +210,7 @@ namespace MovieINTEX.Services
                     {
                         if (await reader.ReadAsync())
                         {
-                            for (int i = 1; i <= 10; i++)
+                            for (int i = 1; i <= 20; i++)
                             {
                                 var columnName = $"recommended_show_{i}_id";
                                 if (!reader.IsDBNull(reader.GetOrdinal(columnName)))
@@ -276,7 +276,7 @@ namespace MovieINTEX.Services
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"{favEntry.title} Lovers also Loved",
+                        Title = $"\"{favEntry.title}\" Lovers also Loved",
                         Items = MapShowIds(favMovieRecs)
                     });
                 }
@@ -305,7 +305,7 @@ namespace MovieINTEX.Services
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"Because You Liked {titlesDict[showId].title}",
+                        Title = $"If You Like \"{titlesDict[showId].title}\"",
                         Items = MapShowIds(row)
                     });
                 }
@@ -379,6 +379,14 @@ namespace MovieINTEX.Services
                 Carousels = carousels
             };
         }
+
+        public Task<List<string>> GetRecommendationsForShowAsync(string showId)
+        {
+            var safeShowId = showId.Replace("'", "''");
+            string sql = $"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'";
+            return GetRecommendationShowIds(sql);
+        }
+
 
     }
 }
