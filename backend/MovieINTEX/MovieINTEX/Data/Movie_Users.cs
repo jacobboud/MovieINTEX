@@ -20,13 +20,23 @@ namespace MovieINTEX.Data
         public required string Zip { get; set; }
 
         public bool Netflix { get; set; }
+        [Column("Amazon Prime")]
         public bool AmazonPrime { get; set; }
+
+        [Column("Disney+")]
         public bool DisneyPlus { get; set; }
+
+        [Column("Paramount+")]
         public bool ParamountPlus { get; set; }
+
         public bool Max { get; set; }
         public bool Hulu { get; set; }
-        public bool AppleTVPlus { get; set; }
+
+        [Column("Apple TV+")]
+        public bool AppleTvPlus { get; set; }
         public bool Peacock { get; set; }
+        
+        [Column("favorite_movie")] 
         public string? FavoriteMovie { get; set; }
 
         public bool Action { get; set; }

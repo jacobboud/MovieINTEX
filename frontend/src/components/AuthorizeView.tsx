@@ -1,29 +1,32 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom'; // ✅ Add useNavigate
 
-const UserContext = createContext<User | null>(null);
+export const UserContext = createContext<User | null>(null);
 
 interface User {
   email: string;
+  roles: string[];
 }
 
 function AuthorizeView(props: { children: React.ReactNode }) {
   const [authorized, setAuthorized] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true); // add a loading state
-  //const navigate = useNavigate();
-  let emptyuser: User = { email: '' };
+  const [loading, setLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<User>({ email: '', roles: [] });
 
-  const [user, setUser] = useState(emptyuser);
+  const navigate = useNavigate(); // ✅ Now active
 
   useEffect(() => {
     async function fetchWithRetry(url: string, options: any) {
       try {
         const response = await fetch(url, options);
-        //console.log('AuthorizeView: Raw Response:', response);
+
+        // Check for 401 before trying to read JSON
+        if (response.status === 401) {
+          navigate('/login'); // 🔁 Manual redirect
+          return;
+        }
 
         const contentType = response.headers.get('content-type');
-
-        // Ensure response is JSON before parsing
         if (!contentType || !contentType.includes('application/json')) {
           throw new Error('Invalid response format from server');
         }
@@ -31,7 +34,7 @@ function AuthorizeView(props: { children: React.ReactNode }) {
         const data = await response.json();
 
         if (data.email) {
-          setUser({ email: data.email });
+          setUser({ email: data.email, roles: data.roles || [] });
           setAuthorized(true);
         } else {
           throw new Error('Invalid user session');
@@ -47,7 +50,7 @@ function AuthorizeView(props: { children: React.ReactNode }) {
       method: 'GET',
       credentials: 'include',
     });
-  }, []);
+  }, [navigate]); // include navigate in deps
 
   if (loading) {
     return <p>Loading...</p>;
@@ -55,18 +58,19 @@ function AuthorizeView(props: { children: React.ReactNode }) {
 
   if (authorized) {
     return (
-      <UserContext.Provider value={user}>{props.children}</UserContext.Provider>
+      <UserContext.Provider value={user}>
+        {props.children}
+      </UserContext.Provider>
     );
   }
 
-  return <Navigate to="/login" />;
+  // Don't return Navigate here anymore — handled in useEffect
+  return null;
 }
 
 export function AuthorizedUser(props: { value: string }) {
   const user = React.useContext(UserContext);
-
-  if (!user) return null; // Prevents errors if context is null
-
+  if (!user) return null;
   return props.value === 'email' ? <>{user.email}</> : null;
 }
 

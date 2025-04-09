@@ -25,8 +25,15 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddTransient(typeof(IEmailSender<>), typeof(NoOpEmailSender<>));
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+//     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -41,8 +48,17 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.Name = "AspNetCore.Identity.Application";
-    options.LoginPath = "/login";
+    
+    // options.LoginPath = "";
+    // options.LoginPath = "/login"; // This value isn't actually used, but it's fine
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    
+    options.LoginPath = ""; // disables automatic redirect
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = 401; // 🔐 Tell frontend: you're not logged in
+        return Task.CompletedTask;
+    };
 
 });
 
@@ -67,6 +83,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+
 
 app.UseHttpsRedirection();
 
@@ -98,12 +115,19 @@ app.MapPost("/custom-register", async (
 
     var result = await userManager.CreateAsync(identityUser, model.Password);
 
+    // ✅ Check if it failed before continuing
     if (!result.Succeeded)
     {
+        Console.WriteLine("Failed to create Identity user:");
+        foreach (var error in result.Errors)
+        {
+            Console.WriteLine($" - {error.Description}");
+        }
         return Results.BadRequest(result.Errors);
     }
 
-    // ✅ Add MovieUser record
+    await userManager.AddToRoleAsync(identityUser, "User");
+
     var movieUser = new Movie_Users
     {
         Name = model.Name,
@@ -114,9 +138,7 @@ app.MapPost("/custom-register", async (
         City = model.City,
         State = model.State,
         Zip = model.Zip,
-        IdentityUserId = identityUser.Id,
-
-        // streaming platforms = false by default or set elsewhere
+        IdentityUserId = identityUser.Id
     };
 
     movieDbContext.movies_users.Add(movieUser);
@@ -124,6 +146,7 @@ app.MapPost("/custom-register", async (
 
     return Results.Ok(new { message = "User registered." });
 });
+
 
 
 app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
@@ -142,15 +165,46 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
 }).RequireAuthorization();
 
 
-app.MapGet("/pingauth", (ClaimsPrincipal user) =>
+app.MapGet("/pingauth", async (
+    ClaimsPrincipal user,
+    UserManager<IdentityUser> userManager) =>
 {
     if (!user.Identity?.IsAuthenticated ?? false)
     {
         return Results.Unauthorized();
     }
 
-    var email = user.FindFirstValue(ClaimTypes.Email) ?? "unknown@example.com"; // Ensure it's never null
-    return Results.Json(new { email = email }); // Return as JSON
+    var identityUser = await userManager.GetUserAsync(user);
+    if (identityUser == null)
+    {
+        return Results.Unauthorized();
+    }
+
+    var roles = await userManager.GetRolesAsync(identityUser);
+    var email = identityUser.Email ?? "unknown@example.com";
+
+    return Results.Json(new
+    {
+        email = email,
+        roles = roles
+    });
 }).RequireAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roles = { "Admin", "User" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
+
 
 app.Run();

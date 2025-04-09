@@ -95,7 +95,8 @@ function Register() {
           navigate('/new-user');
         })
         .catch((error) => {
-          console.error(error);
+          const errorMessage = error.message || "Error registering.";
+          console.error("Frontend error:", errorMessage);
           setError('Error registering.');
         });
     }
