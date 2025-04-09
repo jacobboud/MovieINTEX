@@ -113,8 +113,17 @@ namespace MovieINTEX.Services
                 "NotRated" => query
                     .Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id))
                     .OrderBy(m => m.title),
-                _ => query.OrderBy(m => m.title) // Default: NameAsc
+                "RatingHigh" => query
+                    .OrderByDescending(m => _context.movies_ratings
+                        .Where(r => r.ShowId == m.show_id)
+                        .Average(r => (double?)r.Rating) ?? 0),
+                "RatingLow" => query
+                    .OrderBy(m => _context.movies_ratings
+                        .Where(r => r.ShowId == m.show_id)
+                        .Average(r => (double?)r.Rating) ?? double.MaxValue),
+                _ => query.OrderBy(m => m.title)
             };
+
 
             // Pagination and projection
             return query

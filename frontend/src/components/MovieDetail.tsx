@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
 interface MovieDetailData {
   show_id: string;
@@ -20,8 +20,13 @@ interface MovieDetailData {
 
 export default function MovieDetail() {
   const { showId } = useParams<{ showId: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [movie, setMovie] = useState<MovieDetailData | null>(null);
   const [userRating, setUserRating] = useState<number>(0);
+
+  // Grab 'from' path or fallback
+  const from = location.state?.from || '/movie';
 
   useEffect(() => {
     axios
@@ -202,9 +207,11 @@ export default function MovieDetail() {
           ▶ Play
         </button>
       </div>
+
+      {/* Back button using navigate */}
       <br />
-      <Link
-        to="/movie"
+      <button
+        onClick={() => navigate(from)}
         style={{
           display: 'inline-block',
           marginBottom: '20px',
@@ -214,10 +221,11 @@ export default function MovieDetail() {
           borderRadius: '5px',
           textDecoration: 'none',
           fontWeight: 'bold',
+          cursor: 'pointer',
         }}
       >
-        ← Back to Movie Page
-      </Link>
+        ← Back to Previous Page
+      </button>
     </div>
   );
 }

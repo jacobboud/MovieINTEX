@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const sanitizeTitleForFilename = (title: string) => {
   return title
@@ -12,15 +12,17 @@ export default function MovieCard({ movie }: { movie: any }) {
   const filename = sanitizeTitleForFilename(movie.title);
   const imagePath = `/MoviePosters/${filename}.jpg`;
 
+  const location = useLocation();
+
   return (
-    <Link to={`/movie/${movie.showId}`}>
+    <Link to={`/movie/${movie.showId}`} state={{ from: location.pathname }}>
       <div className="card shadow hover:shadow-lg h-100">
         <img
           src={imagePath}
           alt={movie.title}
           className="w-full h-48 object-cover"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = '/MoviePosters/default.jpg'; // Optional fallback image
+            (e.target as HTMLImageElement).src = '/MoviePosters/default.jpg';
           }}
         />
         <div className="p-2">

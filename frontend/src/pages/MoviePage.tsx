@@ -189,7 +189,10 @@ export default function MoviePage() {
                       textAlign: 'center',
                     }}
                   >
-                    <Link to={`/movie/${item.showId}`}>
+                    <Link
+                      to={`/movie/${item.showId}`}
+                      state={{ from: '/movie' }}
+                    >
                       <img
                         src={`/MoviePosters/${filename}.jpg`}
                         alt={item.title}

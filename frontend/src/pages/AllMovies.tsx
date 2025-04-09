@@ -13,7 +13,7 @@ interface Movie {
 const AllMovies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(12);
+  const [selectedPageSize, setSelectedPageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [category, setCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('NameAsc');
@@ -25,7 +25,7 @@ const AllMovies: React.FC = () => {
     setLoading(true);
     const params: any = {
       page: currentPage,
-      pageSize,
+      pageSize: selectedPageSize,
       sortBy,
     };
     if (category) params.category = category;
@@ -37,7 +37,7 @@ const AllMovies: React.FC = () => {
       if (Array.isArray(res.data.movies)) {
         setMovies(res.data.movies);
         const totalItems = res.data.total ?? 0;
-        setTotalPages(Math.ceil(totalItems / pageSize));
+        setTotalPages(Math.ceil(totalItems / selectedPageSize));
       } else {
         console.warn('Unexpected movies format:', res.data);
         setMovies([]);
@@ -74,7 +74,7 @@ const AllMovies: React.FC = () => {
   // Refetch when filters change
   useEffect(() => {
     fetchMovies();
-  }, [currentPage, sortBy, category]);
+  }, [currentPage, sortBy, category, selectedPageSize]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
@@ -86,11 +86,16 @@ const AllMovies: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPageSize(parseInt(e.target.value));
+    setCurrentPage(1);
+  };
+
   return (
     <div className="container my-4">
       <h1 className="mb-4 text-center">All Movies</h1>
 
-      {/* Filter + Sort Controls */}
+      {/* Filter + Sort + Page Size Controls */}
       <div className="d-flex flex-wrap justify-content-center gap-4 mb-4">
         {/* Category Dropdown */}
         <div className="text-center">
@@ -126,6 +131,24 @@ const AllMovies: React.FC = () => {
             <option value="NameAsc">Name (A-Z)</option>
             <option value="NameDesc">Name (Z-A)</option>
             <option value="NotRated">Not Yet Rated</option>
+            <option value="RatingHigh">Rating (Highest)</option>
+            <option value="RatingLow">Rating (Lowest)</option>
+          </select>
+        </div>
+
+        {/* Page Size Dropdown */}
+        <div className="text-center">
+          <label className="form-label me-2 fw-semibold">
+            Movies per Page:
+          </label>
+          <select
+            className="form-select w-auto d-inline"
+            value={selectedPageSize}
+            onChange={handlePageSizeChange}
+          >
+            <option value={12}>12</option>
+            <option value={24}>24</option>
+            <option value={50}>50</option>
           </select>
         </div>
       </div>
