@@ -90,40 +90,63 @@ const AllMovies: React.FC = () => {
     <div className="container my-4">
       <h1 className="mb-4 text-center">All Movies</h1>
 
-      {/* Category Buttons */}
-      <div className="mb-3 d-flex flex-wrap gap-2 justify-content-center">
-        <button
-          className={`btn btn-outline-primary ${!category ? 'active' : ''}`}
-          onClick={() => handleCategoryChange(null)}
-        >
-          All
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className={`btn btn-outline-primary ${category === cat ? 'active' : ''}`}
-            onClick={() => handleCategoryChange(cat)}
+      {/* Filter + Sort Controls */}
+      <div className="d-flex flex-wrap justify-content-center gap-4 mb-4">
+        {/* Category Dropdown */}
+        <div className="text-center">
+          <label className="form-label me-2 fw-semibold">
+            Filter by Genre:
+          </label>
+          <select
+            className="form-select w-auto d-inline"
+            value={category ?? 'All'}
+            onChange={(e) =>
+              handleCategoryChange(
+                e.target.value === 'All' ? null : e.target.value
+              )
+            }
           >
-            {cat}
-          </button>
-        ))}
+            <option value="All">All</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sort Dropdown */}
+        <div className="text-center">
+          <label className="form-label me-2 fw-semibold">Sort by:</label>
+          <select
+            className="form-select w-auto d-inline"
+            value={sortBy}
+            onChange={handleSortChange}
+          >
+            <option value="NameAsc">Name (A-Z)</option>
+            <option value="NameDesc">Name (Z-A)</option>
+            <option value="NotRated">Not Yet Rated</option>
+          </select>
+        </div>
       </div>
 
-      {/* Sort Dropdown */}
-      <div className="mb-4 text-center">
-        <label className="form-label me-2">Sort by:</label>
-        <select
-          className="form-select w-auto d-inline"
-          value={sortBy}
-          onChange={handleSortChange}
-        >
-          <option value="NameAsc">Name (A-Z)</option>
-          <option value="NameDesc">Name (Z-A)</option>
-          <option value="NotRated">Not Yet Rated</option>
-        </select>
-      </div>
+      {/* Optional Recommendation Section */}
+      {category && (
+        <div className="mb-4">
+          <h3 className="text-center">
+            Recommended {category} Movies You Might Like
+          </h3>
+          <div className="row justify-content-center">
+            {movies.slice(0, 4).map((movie) => (
+              <div className="col-md-3 mb-4" key={movie.show_id}>
+                <MovieCard movie={movie} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Movie Grid */}
+      {/* Main Movie Grid */}
       <div className="row">
         {loading ? (
           <p className="text-center text-muted">Loading movies...</p>

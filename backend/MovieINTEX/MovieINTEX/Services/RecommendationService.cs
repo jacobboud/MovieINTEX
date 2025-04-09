@@ -28,7 +28,7 @@ namespace MovieINTEX.Services
                     ShowId = m.show_id,
                     Title = m.title,
                     ReleaseYear = m.release_year,
-                    Description = m.description,
+                    Description = m.description
                 })
                 .ToList();
         }
@@ -47,50 +47,49 @@ namespace MovieINTEX.Services
                 .ToList();
         }
 
-        public int GetTotalMovieCount(string? category = null, string? sortBy = null)
+        public int GetTotalMovieCount(string? category = null)
         {
             var query = _context.movies_titles.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(category))
             {
                 query = query.Where(m => EF.Property<bool>(m, category) == true);
-            }
-
-            if (sortBy == "NotRated")
-            {
-                query = query.Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id));
             }
 
             return query.Count();
         }
 
-        public List<Movie_Titles> GetPagedMovies(int page, int pageSize, string? sortBy = null, string? category = null)
+        public List<MovieDto> GetPagedMovies(int page, int pageSize, string? category = null, string? sortBy = "NameAsc")
         {
             var query = _context.movies_titles.AsQueryable();
 
+            // Category filtering
             if (!string.IsNullOrWhiteSpace(category))
             {
                 query = query.Where(m => EF.Property<bool>(m, category) == true);
             }
 
-            switch (sortBy)
+            // Sorting logic
+            query = sortBy switch
             {
-                case "NameDesc":
-                    query = query.OrderByDescending(m => m.title);
-                    break;
-                case "NotRated":
-                    query = query
-                        .Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id))
-                        .OrderBy(m => m.title);
-                    break;
-                default:
-                    query = query.OrderBy(m => m.title); // Name A–Z
-                    break;
-            }
+                "NameDesc" => query.OrderByDescending(m => m.title),
+                "NotRated" => query
+                    .Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id))
+                    .OrderBy(m => m.title),
+                _ => query.OrderBy(m => m.title) // Default: NameAsc
+            };
 
+            // Pagination and projection
             return query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(m => new MovieDto
+                {
+                    ShowId = m.show_id,
+                    Title = m.title,
+                    ReleaseYear = m.release_year,
+                    Description = m.description
+                })
                 .ToList();
         }
 
@@ -211,14 +210,12 @@ namespace MovieINTEX.Services
 
             var carousels = new List<CarouselDto>();
 
-            // 1. Recommended for You
             var allRecs = await GetRecommendationShowIds($"SELECT * FROM user_recommendations_all WHERE user_id = {userId}");
             if (allRecs.Count > 0)
             {
                 carousels.Add(new CarouselDto { Title = "Recommended for You", Items = MapShowIds(allRecs) });
             }
 
-            // 2. {Favorite Movie} Lovers Also Loved
             if (!string.IsNullOrEmpty(user.FavoriteMovie) && titlesDict.ContainsKey(user.FavoriteMovie))
             {
                 var favMovieRecs = await GetRecommendationShowIds($"SELECT * FROM show_recommendations WHERE show_id = '{user.FavoriteMovie}'");
@@ -232,7 +229,6 @@ namespace MovieINTEX.Services
                 }
             }
 
-            // 3. Because you liked {Movie}
             foreach (var showId in highRatedShows)
             {
                 if (!titlesDict.ContainsKey(showId)) continue;
@@ -247,7 +243,6 @@ namespace MovieINTEX.Services
                 }
             }
 
-            // 4. {Category} Movies You Might Like
             var categories = new[]
             {
                 "Action", "Adventure", "AnimeSeries", "BritishSeries", "Children", "Comedies",
@@ -275,7 +270,6 @@ namespace MovieINTEX.Services
                 }
             }
 
-            // 5. Other {Streaming Service} Watchers Enjoyed
             var services = new[] { "Netflix", "Amazon Prime", "Disney+", "Paramount+", "Max", "Hulu", "Apple TV+", "Peacock" };
 
             foreach (var service in services)
@@ -295,7 +289,6 @@ namespace MovieINTEX.Services
                 }
             }
 
-            // 6. Try a Random Movie
             var allShows = titlesDict.Keys
                 .Where(k => !ratedShowIds.Contains(k))
                 .OrderBy(_ => Guid.NewGuid())
