@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom'; // ✅ Add useNavigate
+import { Navigate } from 'react-router-dom';
 
 export const UserContext = createContext<User | null>(null);
 
@@ -13,48 +13,37 @@ function AuthorizeView(props: { children: React.ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User>({ email: '', roles: [] });
 
-  const navigate = useNavigate(); // ✅ Now active
-
   useEffect(() => {
-    async function fetchWithRetry(url: string, options: any) {
-      try {
-        const response = await fetch(url, options);
+    // ⏱ Wait 300ms before starting fetch
+    const timer = setTimeout(() => {
+      fetch('https://localhost:5000/pingauth', {
+        method: 'GET',
+        credentials: 'include',
+      })
+        .then(async (res) => {
+          if (res.status === 401) {
+            throw new Error('Unauthorized');
+          }
+          const data = await res.json();
+          if (data.email) {
+            setUser({ email: data.email, roles: data.roles || [] });
+            setAuthorized(true);
+          } else {
+            throw new Error('No valid user data');
+          }
+        })
+        .catch(() => {
+          setAuthorized(false);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, 300); // <-- 👈 actual delay
 
-        // Check for 401 before trying to read JSON
-        if (response.status === 401) {
-          navigate('/login'); // 🔁 Manual redirect
-          return;
-        }
+    return () => clearTimeout(timer); // cleanup
+  }, []);
 
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error('Invalid response format from server');
-        }
-
-        const data = await response.json();
-
-        if (data.email) {
-          setUser({ email: data.email, roles: data.roles || [] });
-          setAuthorized(true);
-        } else {
-          throw new Error('Invalid user session');
-        }
-      } catch (error) {
-        setAuthorized(false);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchWithRetry('https://localhost:5000/pingauth', {
-      method: 'GET',
-      credentials: 'include',
-    });
-  }, [navigate]); // include navigate in deps
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  if (loading) return <p>Loading...</p>;
 
   if (authorized) {
     return (
@@ -64,8 +53,7 @@ function AuthorizeView(props: { children: React.ReactNode }) {
     );
   }
 
-  // Don't return Navigate here anymore — handled in useEffect
-  return null;
+  return <Navigate to="/login" />;
 }
 
 export function AuthorizedUser(props: { value: string }) {
@@ -75,3 +63,6 @@ export function AuthorizedUser(props: { value: string }) {
 }
 
 export default AuthorizeView;
+// Note: This component is used to wrap around routes that require authentication.
+// It checks if the user is authorized and provides the user context to its children.
+// If the user is not authorized, it redirects them to the login page.

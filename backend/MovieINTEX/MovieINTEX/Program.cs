@@ -105,7 +105,9 @@ app.MapGet("/auth-status", (ClaimsPrincipal user) =>
 app.MapPost("/custom-register", async (
     RegisterDto model,
     UserManager<IdentityUser> userManager,
-    MovieDbContext movieDbContext) =>
+    SignInManager<IdentityUser> signInManager, // 👈 add this
+    MovieDbContext movieDbContext,
+    HttpContext httpContext) => // 👈 add this for cookie login
 {
     var identityUser = new IdentityUser
     {
@@ -115,19 +117,17 @@ app.MapPost("/custom-register", async (
 
     var result = await userManager.CreateAsync(identityUser, model.Password);
 
-    // ✅ Check if it failed before continuing
     if (!result.Succeeded)
     {
-        Console.WriteLine("Failed to create Identity user:");
-        foreach (var error in result.Errors)
-        {
-            Console.WriteLine($" - {error.Description}");
-        }
         return Results.BadRequest(result.Errors);
     }
 
     await userManager.AddToRoleAsync(identityUser, "User");
 
+    // 🧠 Sign in the user right after registration
+    await signInManager.SignInAsync(identityUser, isPersistent: false);
+
+    // ✅ Add MovieUser record
     var movieUser = new Movie_Users
     {
         Name = model.Name,
@@ -144,8 +144,9 @@ app.MapPost("/custom-register", async (
     movieDbContext.movies_users.Add(movieUser);
     await movieDbContext.SaveChangesAsync();
 
-    return Results.Ok(new { message = "User registered." });
+    return Results.Ok(new { message = "User registered and signed in." });
 });
+
 
 
 

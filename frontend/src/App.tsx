@@ -14,6 +14,7 @@ import ManageMovies from './pages/ManageMovies';
 import NewUserForm from './pages/NewUserForm';
 import RequireRole from './components/RequireRole';
 import AuthorizeView from './components/AuthorizeView';
+import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -83,11 +84,17 @@ function App() {
 }
 
 function AppWrapper() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    // Slight delay so browser stores cookie before auth ping
+    const timer = setTimeout(() => setReady(true), 200); // ⏱️ 200ms delay
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Router>
-      
-        <App />
-        
+      {ready ? <App /> : <p>Loading...</p>}
     </Router>
   );
 }
