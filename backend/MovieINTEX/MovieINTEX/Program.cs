@@ -26,13 +26,26 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddTransient(typeof(IEmailSender<>), typeof(NoOpEmailSender<>));
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+//     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
     options.ClaimsIdentity.UserNameClaimType = ClaimTypes.Email; // Ensure email is stored in claims
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+
 });
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, CustomUserClaimsPrincipalFactory>();
@@ -42,8 +55,17 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.Name = "AspNetCore.Identity.Application";
-    options.LoginPath = "/login";
+    
+    // options.LoginPath = "";
+    // options.LoginPath = "/login"; // This value isn't actually used, but it's fine
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    
+    options.LoginPath = ""; // disables automatic redirect
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = 401; // 🔐 Tell frontend: you're not logged in
+        return Task.CompletedTask;
+    };
 
 });
 
@@ -69,6 +91,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -79,10 +102,19 @@ app.MapControllers();
 
 app.MapIdentityApi<IdentityUser>();
 
+app.MapGet("/auth-status", (ClaimsPrincipal user) => 
+{
+    var isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+    return Results.Ok(new { isAuthenticated });
+});
+
+
 app.MapPost("/custom-register", async (
     RegisterDto model,
     UserManager<IdentityUser> userManager,
-    MovieDbContext movieDbContext) =>
+    SignInManager<IdentityUser> signInManager, // 👈 add this
+    MovieDbContext movieDbContext,
+    HttpContext httpContext) => // 👈 add this for cookie login
 {
     var identityUser = new IdentityUser
     {
@@ -97,6 +129,11 @@ app.MapPost("/custom-register", async (
         return Results.BadRequest(result.Errors);
     }
 
+    await userManager.AddToRoleAsync(identityUser, "User");
+
+    // 🧠 Sign in the user right after registration
+    await signInManager.SignInAsync(identityUser, isPersistent: false);
+
     // ✅ Add MovieUser record
     var movieUser = new Movie_Users
     {
@@ -108,16 +145,16 @@ app.MapPost("/custom-register", async (
         City = model.City,
         State = model.State,
         Zip = model.Zip,
-        IdentityUserId = identityUser.Id,
-
-        // streaming platforms = false by default or set elsewhere
+        IdentityUserId = identityUser.Id
     };
 
     movieDbContext.movies_users.Add(movieUser);
     await movieDbContext.SaveChangesAsync();
 
-    return Results.Ok(new { message = "User registered." });
+    return Results.Ok(new { message = "User registered and signed in." });
 });
+
+
 
 
 app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
@@ -143,8 +180,28 @@ app.MapGet("/pingauth", (ClaimsPrincipal user) =>
         return Results.Unauthorized();
     }
 
-    var email = user.FindFirstValue(ClaimTypes.Email) ?? "unknown@example.com"; // Ensure it's never null
-    return Results.Json(new { email = email }); // Return as JSON
-}).RequireAuthorization();
+    var email = user.FindFirstValue(ClaimTypes.Email) ?? "unknown@example.com";
+    var roles = user.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
+
+    return Results.Json(new { email, roles });
+});
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roles = { "Admin", "User" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
+
 
 app.Run();

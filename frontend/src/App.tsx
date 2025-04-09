@@ -13,6 +13,8 @@ import PrivacyPage from './pages/Privacy';
 import ManageMovies from './pages/ManageMovies';
 import NewUserForm from './pages/NewUserForm';
 import AllMovies from './pages/AllMovies';
+import RequireRole from './components/RequireRole';
+import AuthorizeView from './components/AuthorizeView';
 /*Imports bootstrap*/
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect } from 'react';
@@ -66,20 +68,72 @@ function App() {
         </div>
       )}
 
-      {/* Define the routes for the pages */}
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/create-account" element={<CreateAccountPage />} />
-        <Route path="/movie" element={<MoviePage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/manage-movies" element={<ManageMovies />} />
-        <Route path="/new-user" element={<NewUserForm />} />
-        <Route path="/all-movies" element={<AllMovies />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/movie/:showId" element={<MovieDetail />} />
-      </Routes>
-    </div>
-  );
+            {/* Define the routes for the pages */}
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/create-account" element={<CreateAccountPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/movie/:showId" element={<MovieDetail />} />
+
+
+                <Route
+                    path="/movie"
+                    element={
+                        <AuthorizeView>
+                          
+                                <MoviePage />
+                            
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route
+                    path="/manage-movies"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['Admin']}>
+                                <ManageMovies />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route
+                    path="/new-user"
+                    element={
+                        <AuthorizeView>
+                            <NewUserForm />
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route path="/unauthorized" element={<h1>403 – Unauthorized</h1>} />
+                
+                <Route
+                    path="/all-movies"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['User', 'Admin']}>
+                                <AllMovies />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+
+                <Route
+                    path="/profile"
+                    element={
+                        <AuthorizeView>
+                            <RequireRole roles={['User', 'Admin']}>
+                                <ProfilePage />
+                            </RequireRole>
+                        </AuthorizeView>
+                    }
+                />
+                
+            </Routes>
+        </div>
+    );
 }
 
 function AppWrapper() {

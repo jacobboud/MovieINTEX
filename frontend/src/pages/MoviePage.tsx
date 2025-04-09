@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './MoviePage.css';
-import '../App.css';
-import NavBar from '../components/NavBar';
 
 interface CarouselItem {
   title: string;
@@ -35,6 +32,7 @@ export default function MoviePage() {
         withCredentials: true,
       })
       .then((res) => {
+        console.log("🎬 Carousel Response:", res.data);
         setUserName(res.data.name);
         setCarousels(res.data.carousels);
       })
@@ -69,7 +67,7 @@ export default function MoviePage() {
   const sanitizeTitleForFilename = (title: string) =>
     title
       .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9 ]/g, '')
       .trim();
 
@@ -84,88 +82,196 @@ export default function MoviePage() {
   const heroMovie = firstVisibleCarouselItems[0];
 
   return (
-    <div>
-      <NavBar />
-      {/* <div className="text-right mb-4">
+    <div
+      style={{
+        backgroundColor: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+        padding: '20px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '15px',
+          marginBottom: '20px',
+        }}
+      >
+        <Link
+          to="/all-movies"
+          style={{
+            backgroundColor: '#1db954',
+            color: '#fff',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          Browse All Movies
+        </Link>
         <Link
           to="/profile"
-          className="bg-white text-black px-3 py-1 rounded hover:bg-gray-200"
+          style={{
+            backgroundColor: '#fff',
+            color: '#000',
+            padding: '10px 20px',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
         >
           Edit Profile
         </Link>
-      </div> */}
+      </div>
 
-      <h1 className="heading-bebas">Welcome {userName}</h1>
-
-      {/* Hero Section */}
-      {heroMovie && (
-        <div className="hero-section">
-          <div className="hero-text">
-            <h2 className="hero-title">{heroMovie.title}</h2>
-            <p className="hero-description">{heroMovie.description}</p>
-          </div>
-          <div className="hero-image">
-            <img
-              src={`/MoviePosters/${sanitizeTitleForFilename(heroMovie.title)}.jpg`}
-              alt={heroMovie.title}
-              onError={() =>
-                setMissingImages(
-                  (prev) =>
-                    new Set(prev.add(sanitizeTitleForFilename(heroMovie.title)))
-                )
-              }
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="text-center">
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSearch(searchQuery);
           }}
-          className="search-form"
+          style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
         >
           <input
             type="text"
             placeholder="Search for a movie..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+            style={{
+              padding: '10px',
+              width: '80%',
+              maxWidth: '400px',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+            }}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={clearSearch}
-              className="clear-button"
+              style={{
+                background: 'transparent',
+                color: '#fff',
+                fontSize: '18px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
               title="Clear search"
             >
               ❌
             </button>
           )}
-          <button type="submit">Search</button>
+          <button
+            type="submit"
+            style={{
+              padding: '10px 20px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: '#1db954',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            Search
+          </button>
         </form>
       </div>
 
-      {/* Search Results */}
+      <h1
+        style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          marginBottom: '20px',
+          textAlign: 'center',
+        }}
+      >
+        For {userName}
+      </h1>
+
+      {/* Hero Section */}
+      {heroMovie && (
+        <div style={{ marginBottom: '30px', textAlign: 'center' }}>
+          <img
+            src={`/MoviePosters/${sanitizeTitleForFilename(heroMovie.title)}.jpg`}
+            alt={heroMovie.title}
+            style={{
+              width: '400px',
+              height: 'auto',
+              borderRadius: '8px',
+              objectFit: 'cover',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            }}
+            onError={() =>
+              setMissingImages(
+                (prev) =>
+                  new Set(prev.add(sanitizeTitleForFilename(heroMovie.title)))
+              )
+            }
+          />
+          <h2 style={{ fontSize: '20px', marginTop: '10px' }}>
+            {heroMovie.title}
+          </h2>
+          <p
+            style={{
+              fontSize: '14px',
+              color: '#ccc',
+              maxWidth: '400px',
+              margin: '0 auto',
+            }}
+          >
+            {heroMovie.description}
+          </p>
+        </div>
+      )}
+
       {searchSubmitted && (
         <div style={{ marginBottom: '30px' }}>
-          <h2 className="carousel-title">Search Results</h2>
+          <h2
+            style={{
+              fontSize: '18px',
+              fontWeight: 'bold',
+              marginBottom: '10px',
+              textAlign: 'left',
+            }}
+          >
+            Search Results
+          </h2>
           {searchResults.length === 0 ? (
             <p style={{ color: '#ccc' }}>No results found.</p>
           ) : (
-            <div className="carousel-items">
+            <div
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                gap: '12px',
+                paddingBottom: '8px',
+              }}
+            >
               {searchResults
                 .filter((item) => !isImageMissing(item.title))
                 .map((item) => {
                   const filename = sanitizeTitleForFilename(item.title);
                   return (
-                    <div key={item.showId} className="movie-item">
+                    <div
+                      key={item.showId}
+                      style={{
+                        width: '160px',
+                        flexShrink: 0,
+                        textAlign: 'center',
+                      }}
+                    >
                       <Link to={`/movie/${item.showId}`}>
                         <img
                           src={`/MoviePosters/${filename}.jpg`}
                           alt={item.title}
+                          style={{
+                            width: '160px',
+                            height: '240px',
+                            objectFit: 'cover',
+                            borderRadius: '6px',
+                          }}
                           onError={() =>
                             setMissingImages(
                               (prev) => new Set(prev.add(filename))
@@ -173,7 +279,17 @@ export default function MoviePage() {
                           }
                         />
                       </Link>
-                      <p className="movie-title">{item.title}</p>
+                      <p
+                        style={{
+                          fontSize: '12px',
+                          marginTop: '6px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {item.title}
+                      </p>
                     </div>
                   );
                 })}
@@ -187,25 +303,59 @@ export default function MoviePage() {
         const visibleItems = carousel.items.filter(
           (item) => !isImageMissing(item.title)
         );
+
         if (visibleItems.length === 0) return null;
 
         return (
-          <div key={carousel.title} className="carousel-section">
+          <div key={carousel.title} style={{ marginBottom: '40px' }}>
             {(index !== 0 || heroMovie) && (
-              <h2 className="carousel-title">{carousel.title}</h2>
+              <h2
+                style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  marginBottom: '10px',
+                  textAlign: 'left',
+                }}
+              >
+                {carousel.title}
+              </h2>
             )}
-            <div className="carousel-items">
+
+            {/* Carousel row */}
+            <div
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                gap: '12px',
+                paddingBottom: '8px',
+              }}
+            >
               {visibleItems.map((item) => {
+                // Skip hero item from carousel
                 if (index === 0 && item.showId === heroMovie?.showId)
                   return null;
 
                 const filename = sanitizeTitleForFilename(item.title);
+
                 return (
-                  <div key={item.showId} className="movie-item">
+                  <div
+                    key={item.showId}
+                    style={{
+                      width: '160px',
+                      flexShrink: 0,
+                      textAlign: 'center',
+                    }}
+                  >
                     <Link to={`/movie/${item.showId}`}>
                       <img
                         src={`/MoviePosters/${filename}.jpg`}
                         alt={item.title}
+                        style={{
+                          width: '160px',
+                          height: '240px',
+                          objectFit: 'cover',
+                          borderRadius: '6px',
+                        }}
                         onError={() =>
                           setMissingImages(
                             (prev) => new Set(prev.add(filename))
@@ -213,7 +363,17 @@ export default function MoviePage() {
                         }
                       />
                     </Link>
-                    <p className="movie-title">{item.title}</p>
+                    <p
+                      style={{
+                        fontSize: '12px',
+                        marginTop: '6px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {item.title}
+                    </p>
                   </div>
                 );
               })}

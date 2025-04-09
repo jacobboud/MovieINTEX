@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
 interface MovieDetailData {
   show_id: string;
@@ -20,10 +20,19 @@ interface MovieDetailData {
 
 export default function MovieDetail() {
   const { showId } = useParams<{ showId: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [movie, setMovie] = useState<MovieDetailData | null>(null);
   const [userRating, setUserRating] = useState<number>(0);
+  const [recommendations, setRecommendations] = useState<MovieDetailData[]>([]);
+
+  // Grab 'from' path or fallback
+  const from = location.state?.from || '/movie';
 
   useEffect(() => {
+    if (!showId) return;
+
+    // Fetch movie details
     axios
       .get<MovieDetailData>(
         `https://localhost:5000/Movie/movie-details/${showId}`,
@@ -36,6 +45,19 @@ export default function MovieDetail() {
         setUserRating(res.data.userRating ?? 0);
       })
       .catch((err) => console.error('Failed to fetch movie details:', err));
+
+    // Fetch recommendations
+    axios
+      .get<MovieDetailData[]>(
+        `https://localhost:5000/Movie/movie-recommendations/${showId}`,
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => setRecommendations(res.data))
+      .catch((err) =>
+        console.error('Failed to fetch movie recommendations:', err)
+      );
   }, [showId]);
 
   const handleRate = (rating: number) => {
@@ -203,8 +225,70 @@ export default function MovieDetail() {
         </button>
       </div>
       <br />
-      <Link
-        to="/movie"
+      {recommendations.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h2
+            style={{
+              fontSize: '20px',
+              marginBottom: '12px',
+              textAlign: 'left',
+            }}
+          >
+            Viewers Also Liked
+          </h2>
+          <div
+            style={{
+              display: 'flex',
+              overflowX: 'auto',
+              gap: '12px',
+              paddingBottom: '8px',
+            }}
+          >
+            {recommendations.map((rec) => {
+              const filename = sanitizeTitleForFilename(rec.title);
+              return (
+                <div
+                  key={rec.show_id}
+                  style={{
+                    width: '160px',
+                    flexShrink: 0,
+                    textAlign: 'center',
+                  }}
+                >
+                  <Link to={`/movie/${rec.show_id}`}>
+                    <img
+                      src={`/MoviePosters/${filename}.jpg`}
+                      alt={rec.title}
+                      style={{
+                        width: '160px',
+                        height: '240px',
+                        objectFit: 'cover',
+                        borderRadius: '6px',
+                      }}
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                    />
+                  </Link>
+                  <p
+                    style={{
+                      fontSize: '12px',
+                      marginTop: '6px',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {rec.title}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <br />
+      <button
+        onClick={() => navigate(from)}
         style={{
           display: 'inline-block',
           marginBottom: '20px',
@@ -214,10 +298,11 @@ export default function MovieDetail() {
           borderRadius: '5px',
           textDecoration: 'none',
           fontWeight: 'bold',
+          cursor: 'pointer',
         }}
       >
-        ← Back to Movie Page
-      </Link>
+        ← Back to Previous Page
+      </button>
     </div>
   );
 }

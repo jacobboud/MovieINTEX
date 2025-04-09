@@ -5,6 +5,10 @@
 **/obj/
 
 
+
+*.sqlite-shm
+*.sqlite-wal
+
 .vs/
 *.suo
 *.user

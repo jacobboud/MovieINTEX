@@ -176,6 +176,32 @@ namespace MovieINTEX.Controllers
         }
 
         [Authorize]
+        [HttpGet("movie-recommendations/{showId}")]
+        public async Task<IActionResult> GetMovieRecommendations(
+            string showId,
+            [FromServices] MovieDbContext dbContext,
+            [FromServices] IRecommendationService recommendationService)
+                {
+                    var safeShowId = showId.Replace("'", "''");
+                    var recIds = await recommendationService.GetRecommendationsForShowAsync(showId);
+
+
+            var titlesDict = await dbContext.movies_titles.ToDictionaryAsync(t => t.show_id);
+
+                    var recommended = recIds
+                        .Where(id => titlesDict.ContainsKey(id))
+                        .Select(id => new MovieDto
+                        {
+                            ShowId = id,
+                            Title = titlesDict[id].title,
+                            Description = titlesDict[id].description
+                        }).ToList();
+
+                    return Ok(recommended);
+                }
+
+
+        [Authorize]
         [HttpPost("rate")]
         public async Task<IActionResult> RateMovie([FromBody] MovieRating rating, [FromServices] UserManager<IdentityUser> userManager, [FromServices] MovieDbContext dbContext)
         {

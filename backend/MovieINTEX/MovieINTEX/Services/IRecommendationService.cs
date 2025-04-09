@@ -31,5 +31,8 @@ namespace MovieINTEX.Services
 
         //Delete a movie by ID
         bool DeleteMovie(string id);
+
+        Task<List<string>> GetRecommendationsForShowAsync(string showId);
+
     }
 }

@@ -25,6 +25,9 @@ namespace MovieINTEX.Controllers
         public async Task<IActionResult> GetUserProfile()
         {
             var identityUserId = _userManager.GetUserId(User);
+            Console.WriteLine($"🔍 identityUserId = {identityUserId}");
+
+            
             var user = await _context.movies_users.FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
             if (user == null) return NotFound("User not found");
 

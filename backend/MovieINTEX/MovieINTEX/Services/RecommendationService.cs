@@ -113,8 +113,17 @@ namespace MovieINTEX.Services
                 "NotRated" => query
                     .Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id))
                     .OrderBy(m => m.title),
-                _ => query.OrderBy(m => m.title) // Default: NameAsc
+                "RatingHigh" => query
+                    .OrderByDescending(m => _context.movies_ratings
+                        .Where(r => r.ShowId == m.show_id)
+                        .Average(r => (double?)r.Rating) ?? 0),
+                "RatingLow" => query
+                    .OrderBy(m => _context.movies_ratings
+                        .Where(r => r.ShowId == m.show_id)
+                        .Average(r => (double?)r.Rating) ?? double.MaxValue),
+                _ => query.OrderBy(m => m.title)
             };
+
 
             // Pagination and projection
             return query
@@ -201,7 +210,7 @@ namespace MovieINTEX.Services
                     {
                         if (await reader.ReadAsync())
                         {
-                            for (int i = 1; i <= 10; i++)
+                            for (int i = 1; i <= 20; i++)
                             {
                                 var columnName = $"recommended_show_{i}_id";
                                 if (!reader.IsDBNull(reader.GetOrdinal(columnName)))
@@ -267,7 +276,7 @@ namespace MovieINTEX.Services
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"{favEntry.title} Lovers also Loved",
+                        Title = $"\"{favEntry.title}\" Lovers also Loved",
                         Items = MapShowIds(favMovieRecs)
                     });
                 }
@@ -296,7 +305,7 @@ namespace MovieINTEX.Services
                 {
                     carousels.Add(new CarouselDto
                     {
-                        Title = $"Because You Liked {titlesDict[showId].title}",
+                        Title = $"If You Like \"{titlesDict[showId].title}\"",
                         Items = MapShowIds(row)
                     });
                 }
@@ -370,6 +379,14 @@ namespace MovieINTEX.Services
                 Carousels = carousels
             };
         }
+
+        public Task<List<string>> GetRecommendationsForShowAsync(string showId)
+        {
+            var safeShowId = showId.Replace("'", "''");
+            string sql = $"SELECT * FROM show_recommendations WHERE show_id = '{safeShowId}'";
+            return GetRecommendationShowIds(sql);
+        }
+
 
     }
 }

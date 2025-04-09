@@ -42,6 +42,7 @@ function Register() {
       setError('');
       fetch('https://localhost:5000/custom-register', {
         method: 'POST',
+        credentials: 'include', // Include cookies in the request
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
@@ -60,10 +61,12 @@ function Register() {
             const errText = await response.text();
             throw new Error(errText || 'Registration failed');
           }
-          navigate('/new-user');
+        // after successful registration or login:
+        window.location.href = "/new-user";
         })
         .catch((error) => {
-          console.error(error);
+          const errorMessage = error.message || "Error registering.";
+          console.error("Frontend error:", errorMessage);
           setError('Error registering.');
         });
     }
@@ -198,7 +201,7 @@ function Register() {
                   </button>
                 </div>
               </form>
-              <strong>{error && <p className="error">{error}</p>}</strong>
+                <strong>{error && <p className="error">{error}</p>}</strong>
             </div>
           </div>
         </div>
