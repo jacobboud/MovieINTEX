@@ -55,20 +55,42 @@ export default function MovieDetail() {
   };
 
   const renderStars = (rating: number, filled: boolean) => {
-    return [...Array(5)].map((_, i) => (
-      <span
-        key={i}
-        onClick={() => !filled && handleRate(i + 1)}
-        style={{
-          cursor: !filled ? 'pointer' : 'default',
-          color: i < rating ? '#FFD700' : '#444',
-          fontSize: filled ? '20px' : '24px',
-          marginRight: '4px',
-        }}
-      >
-        ★
-      </span>
-    ));
+    return [...Array(5)].map((_, i) => {
+      const full = i + 1 <= Math.floor(rating);
+      const partial = i < rating && i + 1 > rating;
+
+      return (
+        <span
+          key={i}
+          onClick={() => !filled && handleRate(i + 1)}
+          style={{
+            cursor: !filled ? 'pointer' : 'default',
+            fontSize: filled ? '20px' : '24px',
+            marginRight: '4px',
+            position: 'relative',
+            display: 'inline-block',
+            width: filled ? '20px' : '24px',
+          }}
+        >
+          <span style={{ color: '#444' }}>★</span>
+          {(full || partial) && (
+            <span
+              style={{
+                color: '#FFD700',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: partial ? `${(rating - i) * 100}%` : '100%',
+                overflow: 'hidden',
+                clipPath: 'inset(0 0 0 0)',
+              }}
+            >
+              ★
+            </span>
+          )}
+        </span>
+      );
+    });
   };
 
   if (!movie) return <p style={{ color: '#fff' }}>Loading...</p>;
@@ -153,7 +175,12 @@ export default function MovieDetail() {
 
       <div style={{ marginTop: '20px' }}>
         <strong>Average Rating:</strong>{' '}
-        {renderStars(Math.round(movie.averageRating), true)}
+        <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+          {renderStars(movie.averageRating, true)}
+        </span>
+        <span style={{ marginLeft: '8px', color: '#ccc' }}>
+          ({movie.averageRating.toFixed(1)} / 5)
+        </span>
       </div>
 
       <div style={{ marginTop: '10px' }}>
