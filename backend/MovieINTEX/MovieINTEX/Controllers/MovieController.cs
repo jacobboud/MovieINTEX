@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -130,7 +131,80 @@ namespace MovieINTEX.Controllers
             return NoContent();
         }
 
+        [Authorize]
+        [HttpGet("movie-details/{showId}")]
+        public async Task<IActionResult> GetMovieDetails(string showId, [FromServices] MovieDbContext dbContext, [FromServices] UserManager<IdentityUser> userManager)
+        {
+            var movie = await dbContext.movies_titles.FindAsync(showId);
+            if (movie == null) return NotFound();
 
+            var identityUserId = userManager.GetUserId(User);
+            var movieUser = await dbContext.movies_users.FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
+
+            int? userRating = null;
+
+            if (movieUser != null)
+            {
+                var userRatingEntry = await dbContext.movies_ratings
+                    .FirstOrDefaultAsync(r => r.UserId == movieUser.UserId && r.ShowId == showId);
+                userRating = userRatingEntry?.Rating;
+            }
+
+            var averageRating = await dbContext.movies_ratings
+                .Where(r => r.ShowId == showId)
+                .AverageAsync(r => (double?)r.Rating) ?? 0;
+
+            var categories = typeof(Movie_Titles).GetProperties()
+                .Where(p => p.PropertyType == typeof(bool) && (bool)(p.GetValue(movie) ?? false))
+                .Select(p =>
+                {
+                    var columnAttr = p.GetCustomAttributes(typeof(ColumnAttribute), false).FirstOrDefault() as ColumnAttribute;
+                    return columnAttr?.Name ?? p.Name;
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                movie.show_id,
+                movie.title,
+                movie.type,
+                movie.director,
+                movie.cast,
+                movie.country,
+                movie.release_year,
+                movie.rating,
+                movie.duration,
+                movie.description,
+                categories,
+                averageRating,
+                userRating
+            });
+        }
+
+        [Authorize]
+        [HttpPost("rate")]
+        public async Task<IActionResult> RateMovie([FromBody] MovieRating rating, [FromServices] UserManager<IdentityUser> userManager, [FromServices] MovieDbContext dbContext)
+        {
+            var identityUserId = userManager.GetUserId(User);
+            var movieUser = await dbContext.movies_users.FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
+            if (movieUser == null) return Unauthorized();
+
+            var existingRating = await dbContext.movies_ratings
+                .FirstOrDefaultAsync(r => r.UserId == movieUser.UserId && r.ShowId == rating.ShowId);
+
+            if (existingRating != null)
+            {
+                existingRating.Rating = rating.Rating;
+            }
+            else
+            {
+                rating.UserId = movieUser.UserId;
+                dbContext.movies_ratings.Add(rating);
+            }
+
+            await dbContext.SaveChangesAsync();
+            return Ok();
+        }
 
 
     }

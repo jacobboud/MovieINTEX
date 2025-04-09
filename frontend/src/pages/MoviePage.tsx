@@ -49,10 +49,10 @@ export default function MoviePage() {
   if (carousels.length === 0) return null;
 
   // Find first visible hero movie from first carousel
-  const firstCarousel = carousels[0];
-  const heroMovie = firstCarousel.items.find(
+  const firstVisibleCarouselItems = carousels[0].items.filter(
     (item) => !isImageMissing(item.title)
   );
+  const heroMovie = firstVisibleCarouselItems[0];
 
   return (
     <div
@@ -168,19 +168,24 @@ export default function MoviePage() {
                       textAlign: 'center',
                     }}
                   >
-                    <img
-                      src={`/MoviePosters/${filename}.jpg`}
-                      alt={item.title}
-                      style={{
-                        width: '160px',
-                        height: '240px',
-                        objectFit: 'cover',
-                        borderRadius: '6px',
-                      }}
-                      onError={() =>
-                        setMissingImages((prev) => new Set(prev.add(filename)))
-                      }
-                    />
+                    <Link to={`/movie/${item.showId}`}>
+                      <img
+                        src={`/MoviePosters/${filename}.jpg`}
+                        alt={item.title}
+                        style={{
+                          width: '160px',
+                          height: '240px',
+                          objectFit: 'cover',
+                          borderRadius: '6px',
+                        }}
+                        onError={() =>
+                          setMissingImages(
+                            (prev) => new Set(prev.add(filename))
+                          )
+                        }
+                      />
+                    </Link>
+
                     <p
                       style={{
                         fontSize: '12px',
