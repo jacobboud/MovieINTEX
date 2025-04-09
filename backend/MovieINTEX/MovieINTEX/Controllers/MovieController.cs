@@ -30,7 +30,6 @@ namespace MovieINTEX.Controllers
             return Ok(results);
         }
 
-
         [HttpGet("all-movies")]
         public IActionResult GetAllMovies()
         {
@@ -39,13 +38,17 @@ namespace MovieINTEX.Controllers
         }
 
         [HttpGet("paged-movies")]
-        public IActionResult GetPagedMovies(int page = 1, int pageSize = 10)
+        public IActionResult GetPagedMovies(
+            int page = 1,
+            int pageSize = 10,
+            string? category = null,
+            string? sortBy = "NameAsc")
         {
             if (page <= 0 || pageSize <= 0)
                 return BadRequest("Page and pageSize must be positive numbers.");
 
-            var totalMovies = _recommendationService.GetTotalMovieCount();
-            var pagedMovies = _recommendationService.GetPagedMovies(page, pageSize);
+            var totalMovies = _recommendationService.GetTotalMovieCount(category);
+            var pagedMovies = _recommendationService.GetPagedMovies(page, pageSize, category, sortBy);
 
             return Ok(new
             {
@@ -56,13 +59,11 @@ namespace MovieINTEX.Controllers
             });
         }
 
-
         [HttpGet("categories")]
         public IActionResult GetCategories()
         {
             var categories = _recommendationService.GetAllMovieCategories();
             return Ok(categories);
-
         }
 
         [Authorize]
@@ -71,37 +72,31 @@ namespace MovieINTEX.Controllers
             [FromServices] UserManager<IdentityUser> userManager,
             [FromServices] MovieDbContext movieDbContext,
             [FromServices] IRecommendationService recommendationService)
-                {
-                    var identityUserId = userManager.GetUserId(User);
-                    var movieUser = await movieDbContext.movies_users
-                        .FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
+        {
+            var identityUserId = userManager.GetUserId(User);
+            var movieUser = await movieDbContext.movies_users
+                .FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
 
-                    if (movieUser == null)
-                    {
-                        return NotFound("Movie user not found.");
-                    }
+            if (movieUser == null)
+            {
+                return NotFound("Movie user not found.");
+            }
 
-                    var carousels = await recommendationService.GetCarouselsWithUserInfoAsync(movieUser.UserId);
+            var carousels = await recommendationService.GetCarouselsWithUserInfoAsync(movieUser.UserId);
 
-
-                    return Ok(carousels);
-                }
-
+            return Ok(carousels);
+        }
 
         [HttpPost("AddMovie")]
         public IActionResult AddMovie([FromBody] Movie_Titles movie)
         {
             try
             {
-                // Log the incoming data for debugging
-                //_logger.LogInformation($"Received movie: {movie?.title}, show_id: {movie?.show_id}");
-
                 if (movie == null)
                 {
                     return BadRequest("Movie data is invalid.");
                 }
 
-                // Call the service to add the movie
                 var addedMovie = _recommendationService.AddMovie(movie);
 
                 return Ok(addedMovie);
@@ -111,7 +106,6 @@ namespace MovieINTEX.Controllers
                 return BadRequest($"Error adding movie: {ex.Message}");
             }
         }
-
 
         [HttpPut("UpdateMovie/{id}")]
         public IActionResult UpdateMovie(string id, [FromBody] Movie_Titles movie)

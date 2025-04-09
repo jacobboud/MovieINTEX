@@ -84,17 +84,49 @@ namespace MovieINTEX.Services
                 .ToList();
         }
 
-        public int GetTotalMovieCount()
+        public int GetTotalMovieCount(string? category = null)
         {
-            return _context.movies_titles.Count();
+            var query = _context.movies_titles.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(m => EF.Property<bool>(m, category) == true);
+            }
+
+            return query.Count();
         }
 
-        public List<Movie_Titles> GetPagedMovies(int page, int pageSize)
+        public List<MovieDto> GetPagedMovies(int page, int pageSize, string? category = null, string? sortBy = "NameAsc")
         {
-            return _context.movies_titles
-                .OrderBy(m => m.title)
+            var query = _context.movies_titles.AsQueryable();
+
+            // Category filtering
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(m => EF.Property<bool>(m, category) == true);
+            }
+
+            // Sorting logic
+            query = sortBy switch
+            {
+                "NameDesc" => query.OrderByDescending(m => m.title),
+                "NotRated" => query
+                    .Where(m => !_context.movies_ratings.Any(r => r.ShowId == m.show_id))
+                    .OrderBy(m => m.title),
+                _ => query.OrderBy(m => m.title) // Default: NameAsc
+            };
+
+            // Pagination and projection
+            return query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(m => new MovieDto
+                {
+                    ShowId = m.show_id,
+                    Title = m.title,
+                    ReleaseYear = m.release_year,
+                    Description = m.description
+                })
                 .ToList();
         }
 
@@ -240,9 +272,6 @@ namespace MovieINTEX.Services
                     });
                 }
             }
-
-
-
 
             // 3. Because you liked {Movie}
             foreach (var showId in highRatedShows)
