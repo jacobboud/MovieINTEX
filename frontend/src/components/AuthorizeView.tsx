@@ -38,7 +38,7 @@ function AuthorizeView(props: { children: React.ReactNode }) {
         .finally(() => {
           setLoading(false);
         });
-    }, 200); // <-- 👈 actual delay
+    },200); // <-- 👈 actual delay
 
     return () => clearTimeout(timer); // cleanup
   }, []);
