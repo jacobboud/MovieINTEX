@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import NavBar from '../components/NavBar';
+import NavBar from '../components/BackNavBar';
 import './ProfilePage.css';
 
 interface MovieDto {
@@ -123,8 +123,8 @@ export default function ProfilePage() {
 
         <h1 className="heading-bebas">My Movie Experience</h1>
 
+        <h2>My Favorite Movie:</h2>
         <div className="section-container favorite-movie-section">
-          <h2>My Favorite Movie:</h2>
           <p>{favoriteMovieTitle}</p>
 
           <input
@@ -148,8 +148,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        <h2>My Movie Ratings:</h2>
         <div className="section-container movie-ratings-table">
-          <h2>My Movie Ratings:</h2>
           <table className="table-auto mx-auto">
             <thead>
               <tr>
@@ -181,8 +181,8 @@ export default function ProfilePage() {
           </table>
         </div>
 
+        <h2>My Favorite Categories:</h2>
         <div className="section-container categories-services-section">
-          <h2>My Favorite Categories:</h2>
           <ul className="categories-list">
             {Object.keys(categories).map((key) => (
               <li key={key} className="categories-item">
@@ -198,8 +198,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Services Section */}
+        <h2>My Streaming Services:</h2>
         <div className="section-container categories-services-section">
-          <h2>My Streaming Services:</h2>
           <ul className="services-list">
             {Object.keys(services).map((key) => (
               <li key={key} className="services-item">
@@ -218,8 +218,6 @@ export default function ProfilePage() {
           Save
         </button>
 
-        <br></br>
-        <br></br>
         <button
           onClick={() => navigate('/movie')}
           className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded shadow"

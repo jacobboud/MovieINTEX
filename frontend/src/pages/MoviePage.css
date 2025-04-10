@@ -59,6 +59,7 @@ button,
 button[type='submit'] {
   background-color: #1db954;
   color: white;
+  margin-top: 50px;
 }
 
 button[type='submit']:hover {
@@ -71,6 +72,7 @@ button[type='submit']:hover {
   font-size: 18px;
   border: none;
   cursor: pointer;
+  margin-top: 50px;
 }
 
 .clear-button:hover {
@@ -94,6 +96,7 @@ button[type='submit']:hover {
   max-width: 400px;
   border-radius: 4px;
   border: 1px solid #ccc;
+  margin-top: 50px;
 }
 
 /* Hero section */
@@ -153,7 +156,7 @@ button[type='submit']:hover {
 }
 
 .carousel-title {
-  font-size: 18px;
+  font-size: 30px;
   font-weight: bold;
   margin-bottom: 10px;
   padding-left: 10px;
@@ -170,9 +173,6 @@ button[type='submit']:hover {
   scroll-behavior: smooth;
   flex-wrap: nowrap;
   width: 95vw;
-
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
 }
 
 .carousel-items::-webkit-scrollbar {
@@ -199,8 +199,8 @@ button[type='submit']:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.movie-title {
-  font-size: 12px;
+.movie-title-p {
+  font-size: 16px !important; /* Smaller font size */
   margin-top: 6px;
   white-space: nowrap;
   overflow: hidden;

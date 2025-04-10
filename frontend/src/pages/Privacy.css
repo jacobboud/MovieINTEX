@@ -1,0 +1,81 @@
+/* Privacy.css */
+
+/* Global Styles for Privacy Page */
+.privacy-container {
+  background-color: #c8c5c5;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+  color: black;
+  margin-bottom: 110px;
+}
+
+/* Header styles */
+.privacy-container-h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  color: black;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.privacy-container-h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.6rem;
+  color: black;
+  margin-top: 2rem;
+}
+
+/* Paragraph Styles */
+.privacy-container p {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  color: black;
+  line-height: 1.6;
+}
+
+/* List Styling */
+.privacy-container ul {
+  padding-left: 20px;
+  list-style: none;
+}
+
+.privacy-container ul li {
+  font-size: 1.1rem;
+  color: black;
+  margin-bottom: 0.8rem;
+}
+
+.privacy-container ul li::before {
+  content: '• ';
+  color: #75bd5b; /* Green bullet color */
+}
+
+/* Sections */
+section {
+  margin-top: 3rem;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .privacy-container {
+    padding: 1.5rem;
+    margin: 0 1rem;
+  }
+
+  .privacy-container h1 {
+    font-size: 2rem;
+  }
+
+  .privacy-container h4 {
+    font-size: 1.4rem;
+  }
+
+  .privacy-container p {
+    font-size: 1rem;
+  }
+}
