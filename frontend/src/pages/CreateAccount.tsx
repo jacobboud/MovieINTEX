@@ -199,6 +199,18 @@ function Register() {
               </div>
             </form>
             <strong>{error && <p className="error">{error}</p>}</strong>
+            <br></br>
+            <div className="d-grid mb-2">
+              <button className="btn-google" type="button">
+                <i className="fa-brands fa-google me-2"></i> Sign in with Google
+              </button>
+            </div>
+            <div className="d-grid mb-2">
+              <button className="btn-facebook" type="button">
+                <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
+                Facebook
+              </button>
+            </div>
           </div>
         </div>
       </div>

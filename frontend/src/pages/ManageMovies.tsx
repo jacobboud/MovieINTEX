@@ -4,6 +4,9 @@ import { Movie } from '../types/Movie'; // adjust path if needed
 import AuthorizeView, { AuthorizedUser } from '../components/AuthorizeView';
 import Logout from '../components/Logout';
 import { useEffect } from 'react';
+import BackNavBar from '../components/BackNavBar';
+import Footer from '../components/Footer';
+import './ManageMovies.css';
 
 const ManageMovies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -18,7 +21,8 @@ const ManageMovies: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `https://localhost:5000/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`, {credentials: 'include',}
+      `https://localhost:5000/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`,
+      { credentials: 'include' }
     )
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');
@@ -42,7 +46,7 @@ const ManageMovies: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this movie?')) {
       fetch(`https://localhost:5000/Movie/DeleteMovie/${id}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
       })
         .then((response) => {
           if (response.ok) {
@@ -142,17 +146,18 @@ const ManageMovies: React.FC = () => {
 
   return (
     <AuthorizeView>
-      <span>
+      <BackNavBar />
+      {/* <span>
         <Logout>
           Logout <AuthorizedUser value="email" />
         </Logout>
-      </span>
-      <div className="container mt-5">
-        <h2 className="mb-4">Manage Movies</h2>
+      </span> */}
+      <h2 className="heading-bebas">Manage Movies</h2>
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="manage-movies-container">
+        <div className="top-bar">
           <Form.Select
-            style={{ width: '150px' }}
+            className="results-per-page-select"
             onChange={(e) => setPageSize(parseInt(e.target.value))}
             value={pageSize}
           >
@@ -167,12 +172,13 @@ const ManageMovies: React.FC = () => {
               setEditingMovie(null);
               setShowModal(true);
             }}
+            className="btn-add-movie"
           >
             Add Movie
           </Button>
         </div>
 
-        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+        <div className="table-container">
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -194,6 +200,7 @@ const ManageMovies: React.FC = () => {
                   <td>{movie.duration}</td>
                   <td>
                     <Button
+                      className="btn-edit-movie"
                       size="sm"
                       variant="warning"
                       onClick={() => {
@@ -212,6 +219,7 @@ const ManageMovies: React.FC = () => {
                       Edit
                     </Button>{' '}
                     <Button
+                      className="btn-delete-movie"
                       size="sm"
                       variant="danger"
                       onClick={() => handleDelete(movie.show_id)}
@@ -224,8 +232,8 @@ const ManageMovies: React.FC = () => {
             </tbody>
           </Table>
         </div>
-        <br></br>
-        <Pagination className="justify-content-center">
+
+        <Pagination className="pagination-container">
           <Pagination.First
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
@@ -248,7 +256,9 @@ const ManageMovies: React.FC = () => {
 
               return (
                 <React.Fragment key={page}>
-                  {showEllipsis && <Pagination.Ellipsis key={`ellipsis-${page}`} disabled />}
+                  {showEllipsis && (
+                    <Pagination.Ellipsis key={`ellipsis-${page}`} disabled />
+                  )}
 
                   <Pagination.Item
                     key={`page-${page}`}
@@ -273,13 +283,15 @@ const ManageMovies: React.FC = () => {
           />
         </Pagination>
 
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal size="lg" show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>
-              {editingMovie?.show_id ? 'Edit Movie' : 'Add Movie'}
+              <strong>
+                {editingMovie?.show_id ? 'Edit Movie' : 'Add Movie'}
+              </strong>
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="modal-body">
             <Form>
               {/* Other fields */}
               <Form.Group className="mb-3">
@@ -492,6 +504,7 @@ const ManageMovies: React.FC = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+        <Footer />
       </div>
     </AuthorizeView>
   );

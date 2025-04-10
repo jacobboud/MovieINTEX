@@ -16,7 +16,7 @@ const PrivacyPage = () => {
     <div className="container my-5">
       <div className="privacy-container">
         <h1 className="privacy-container-h1">Privacy Policy for CineNiche</h1>
-        <p>
+        <p style={{ textAlign: 'center' }}>
           <strong>Effective Date:</strong> 04/07/2025
         </p>
 
@@ -32,7 +32,7 @@ const PrivacyPage = () => {
         <section className="mt-5">
           <h4 className="privacy-container-h4">2. What Data We Collect</h4>
           <p>We may collect the following types of personal information:</p>
-          <ul className="list-unstyled ps-3">
+          <ul className="">
             <li>Full Name</li>
             <li>Email Address</li>
             <li>Phone Number</li>
