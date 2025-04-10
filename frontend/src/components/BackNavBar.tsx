@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import './NavBar.css';
+import './BackNavBar.css';
 
 export default function NavBar() {
   const navigate = useNavigate();
@@ -22,6 +22,9 @@ export default function NavBar() {
         </Link>
       </div>
       <div className="navbar-right">
+        <Link to="/movie" className="navbar-link">
+          Home
+        </Link>
         <Link to="/all-movies" className="navbar-link">
           All Movies
         </Link>

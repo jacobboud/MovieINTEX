@@ -1,0 +1,199 @@
+/* Container for the entire movie detail page */
+.movie-detail-container {
+  background: #000;
+  color: #fff;
+  padding: 30px;
+  min-height: 111vh;
+  text-align: center;
+  position: relative;
+}
+
+/* Movie Poster Styling */
+.movie-poster {
+  width: 300px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  margin-bottom: 20px;
+}
+
+.movie-title {
+  font-size: 34px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.movie-details p {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+/* Movie Information Layout */
+.movie-details {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.movie-details strong {
+  font-weight: bold;
+}
+
+/* Add a Description Heading before the description */
+.description-heading {
+  margin-top: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Description Styling */
+.movie-description {
+  margin-top: 10px;
+  max-width: 600px;
+  margin-inline: auto;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Genres */
+.movie-genres {
+  margin-top: 15px;
+}
+
+/* Average Rating and User Rating */
+.movie-rating {
+  margin-top: 20px;
+}
+
+.rating-container {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 20px;
+}
+
+.user-rating {
+  margin-top: 10px;
+}
+
+.star {
+  cursor: pointer;
+}
+
+.star-filled {
+  color: #ffd700;
+}
+
+.star-empty {
+  color: #444;
+}
+
+/* Button Styles */
+.play-button {
+  padding: 10px 20px;
+  background: #1db954;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.play-button:hover {
+  background: #1ed760;
+}
+
+.back-button {
+  display: inline-block;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Recommendations Carousel */
+.recommendations-section {
+  margin-top: 70px;
+  text-align: left;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+/* Carousel Container */
+.recommendations-container {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 12px;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory; /* Ensures smooth snapping of items */
+  -webkit-overflow-scrolling: touch; /* Enables smooth scrolling on mobile */
+  width: 95vw;
+  padding: 20px 0;
+}
+
+/* Prevents vertical scrolling */
+.recommendations-container::-webkit-scrollbar {
+  height: 8px; /* Custom scrollbar height */
+}
+
+.recommendations-container::-webkit-scrollbar-thumb {
+  background-color: #888; /* Scrollbar color */
+  border-radius: 4px;
+}
+
+.recommendations-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Individual carousel items */
+.recommendation-item {
+  width: 160px;
+  flex-shrink: 0;
+  text-align: center;
+  scroll-snap-align: start; /* Snaps each item to the start of the container */
+}
+
+.recommendation-item {
+  width: 160px;
+  flex-shrink: 0;
+  text-align: center;
+  scroll-snap-align: start;
+}
+
+.recommendation-item img {
+  width: 160px;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.recommendation-item p {
+  font-size: 15px;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Back button */
+.back-button {
+  display: inline-block;
+  margin-top: 0px;
+  background-color: #fff;
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}

@@ -1,7 +1,8 @@
 // src/pages/Privacy.tsx
 //import React from 'react';
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import './Privacy.css';
+import Footer from '../components/Footer';
 
 const PrivacyPage = () => {
   useEffect(() => {
@@ -13,14 +14,14 @@ const PrivacyPage = () => {
 
   return (
     <div className="container my-5">
-      <div className="p-4 shadow rounded bg-white privacy-container">
-        <h1 className="mb-4 text-center">Privacy Policy for CineNiche</h1>
+      <div className="privacy-container">
+        <h1 className="privacy-container-h1">Privacy Policy for CineNiche</h1>
         <p>
           <strong>Effective Date:</strong> 04/07/2025
         </p>
 
         <section className="mt-5">
-          <h4>1. Who We Are</h4>
+          <h4 className="privacy-container-h4">1. Who We Are</h4>
           <p>
             CineNiche is a growing movie streaming platform that curates unique
             and niche films for users worldwide. We’re committed to protecting
@@ -29,21 +30,21 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>2. What Data We Collect</h4>
+          <h4 className="privacy-container-h4">2. What Data We Collect</h4>
           <p>We may collect the following types of personal information:</p>
           <ul className="list-unstyled ps-3">
-            <li>• Full Name</li>
-            <li>• Email Address</li>
-            <li>• Phone Number</li>
-            <li>• Age</li>
-            <li>• Gender</li>
-            <li>• City, State, and ZIP Code</li>
-            <li>• Streaming Services You Use</li>
+            <li>Full Name</li>
+            <li>Email Address</li>
+            <li>Phone Number</li>
+            <li>Age</li>
+            <li>Gender</li>
+            <li>City, State, and ZIP Code</li>
+            <li>Streaming Services You Use</li>
           </ul>
         </section>
 
         <section className="mt-5">
-          <h4>3. Why We Collect Your Data</h4>
+          <h4 className="privacy-container-h4">3. Why We Collect Your Data</h4>
           <p>
             Your data helps us provide a personalized experience, improve the
             content we offer, and better understand who our audience is.
@@ -51,7 +52,7 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>4. How We Use Your Data</h4>
+          <h4 className="privacy-container-h4">4. How We Use Your Data</h4>
           <p>
             <strong>Personalization:</strong> We use your preferences and
             demographics to tailor recommendations just for you.
@@ -67,7 +68,9 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>5. Legal Basis for Processing</h4>
+          <h4 className="privacy-container-h4">
+            5. Legal Basis for Processing
+          </h4>
           <p>
             We process your data under the lawful bases of consent, contract
             fulfillment, and legitimate interest, in accordance with the General
@@ -76,7 +79,9 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>6. How We Store and Protect Your Data</h4>
+          <h4 className="privacy-container-h4">
+            6. How We Store and Protect Your Data
+          </h4>
           <p>
             All user data is encrypted in transit and at rest. We regularly
             update our systems and use secure cloud infrastructure with strict
@@ -85,7 +90,7 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>7. Sharing Your Data</h4>
+          <h4 className="privacy-container-h4">7. Sharing Your Data</h4>
           <p>
             We do not sell your personal data. It may be shared with third-party
             service providers who assist us in delivering and improving
@@ -94,7 +99,7 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>8. Your Rights Under GDPR</h4>
+          <h4 className="privacy-container-h4">8. Your Rights Under GDPR</h4>
           <p>
             <strong>Access:</strong> You can request a copy of the personal data
             we hold about you.
@@ -118,7 +123,7 @@ const PrivacyPage = () => {
         </section>
 
         <section className="mt-5">
-          <h4>9. Contact Information</h4>
+          <h4 className="privacy-container-h4">9. Contact Information</h4>
           <p>
             For questions or concerns about your personal data, contact our
             team:
@@ -132,14 +137,7 @@ const PrivacyPage = () => {
         </section>
       </div>
       {/* Fixed footer */}
-      <footer className="footer-fixed">
-        <h6>
-          CineNiche--
-          <Link to="/privacy" className="footer-link">
-            Privacy Policy
-          </Link>
-        </h6>
-      </footer>
+      <Footer />
     </div>
   );
 };

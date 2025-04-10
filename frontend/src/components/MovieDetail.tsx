@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
+import './MovieDetail.css';
 
 interface MovieDetailData {
   show_id: string;
@@ -125,182 +126,108 @@ export default function MovieDetail() {
       .trim();
 
   return (
-    <div
-      style={{
-        background: '#000',
-        color: '#fff',
-        padding: '30px',
-        minHeight: '100vh',
-        textAlign: 'center',
-      }}
-    >
+    <div className="movie-detail-container">
       <img
         src={`/MoviePosters/${sanitizeTitleForFilename(movie.title)}.jpg`}
         alt={movie.title}
-        style={{
-          width: '300px',
-          height: 'auto',
-          borderRadius: '8px',
-          objectFit: 'cover',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
-          marginBottom: '20px',
-        }}
+        className="movie-poster"
         onError={(e) => (e.currentTarget.style.display = 'none')}
       />
 
-      <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>{movie.title}</h1>
-      <p style={{ marginBottom: '10px' }}>
-        <strong>Type:</strong> {movie.type}
-      </p>
-      {movie.director && (
+      <h1 className="movie-title">{movie.title}</h1>
+      <div className="movie-details">
         <p>
-          <strong>Director:</strong> {movie.director}
-        </p>
-      )}
-      {movie.cast && (
-        <p>
-          <strong>Cast:</strong> {movie.cast}
-        </p>
-      )}
-      {movie.country && (
-        <p>
-          <strong>Country:</strong> {movie.country}
-        </p>
-      )}
-      {movie.release_year && (
-        <p>
-          <strong>Year:</strong> {movie.release_year}
-        </p>
-      )}
-      {movie.rating && (
-        <p>
-          <strong>Rating:</strong> {movie.rating}
-        </p>
-      )}
-      {movie.duration && (
-        <p>
-          <strong>Duration:</strong> {movie.duration}
-        </p>
-      )}
-      {movie.description && (
-        <p
-          style={{ marginTop: '10px', maxWidth: '600px', marginInline: 'auto' }}
-        >
-          {movie.description}
-        </p>
-      )}
+          <strong>Type:</strong> {movie.type}
+        </p>{' '}
+        {movie.director && (
+          <p>
+            <strong>Director:</strong> {movie.director}
+          </p>
+        )}{' '}
+        {movie.cast && (
+          <p>
+            <strong>Cast:</strong> {movie.cast}
+          </p>
+        )}
+        {movie.country && (
+          <p>
+            <strong>Country:</strong> {movie.country}
+          </p>
+        )}
+        {movie.release_year && (
+          <p>
+            <strong>Year:</strong> {movie.release_year}
+          </p>
+        )}
+        {movie.rating && (
+          <p>
+            <strong>Rating:</strong> {movie.rating}
+          </p>
+        )}
+        {movie.duration && (
+          <p>
+            <strong>Duration:</strong> {movie.duration}
+          </p>
+        )}
+        {movie.description && (
+          <>
+            <p className="description-heading">
+              <strong>Description:</strong>
+            </p>
+            <p className="movie-description">{movie.description}</p>
+          </>
+        )}
+      </div>
 
-      <div style={{ marginTop: '15px' }}>
+      <div className="movie-genres">
         <strong>Genres:</strong>{' '}
         {movie.categories.length > 0 ? movie.categories.join(', ') : 'None'}
       </div>
 
-      <div style={{ marginTop: '20px' }}>
+      <div className="movie-rating">
         <strong>Average Rating:</strong>{' '}
-        <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+        <div className="rating-container">
           {renderStars(movie.averageRating, true)}
-        </span>
-        <span style={{ marginLeft: '8px', color: '#ccc' }}>
-          ({movie.averageRating.toFixed(1)} / 5)
-        </span>
+        </div>
+        <span>({movie.averageRating.toFixed(1)}/5)</span>
       </div>
 
-      <div style={{ marginTop: '10px' }}>
+      <div className="user-rating">
         <strong>Your Rating:</strong> {renderStars(userRating, false)}
       </div>
 
-      <div style={{ marginTop: '30px' }}>
-        <button
-          style={{
-            padding: '10px 20px',
-            background: '#1db954',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '16px',
-            cursor: 'pointer',
-          }}
-        >
-          ▶ Play
-        </button>
+      <div className="play-button-container">
+        <button className="play-button">▶ Play</button>
+      </div>
+
+      <div className="recommendations-section">
+        {recommendations.length > 0 && (
+          <div>
+            <h2>Viewers Also Liked</h2>
+            <div className="recommendations-container">
+              {recommendations.map((rec) => {
+                const filename = sanitizeTitleForFilename(rec.title);
+                return (
+                  <div key={rec.show_id} className="recommendation-item">
+                    <Link to={`/movie/${rec.show_id}`}>
+                      <img
+                        src={`/MoviePosters/${filename}.jpg`}
+                        alt={rec.title}
+                        onError={(e) =>
+                          (e.currentTarget.style.display = 'none')
+                        }
+                      />
+                    </Link>
+                    <p>{rec.title}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
       <br />
-      {recommendations.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h2
-            style={{
-              fontSize: '20px',
-              marginBottom: '12px',
-              textAlign: 'left',
-            }}
-          >
-            Viewers Also Liked
-          </h2>
-          <div
-            style={{
-              display: 'flex',
-              overflowX: 'auto',
-              gap: '12px',
-              paddingBottom: '8px',
-            }}
-          >
-            {recommendations.map((rec) => {
-              const filename = sanitizeTitleForFilename(rec.title);
-              return (
-                <div
-                  key={rec.show_id}
-                  style={{
-                    width: '160px',
-                    flexShrink: 0,
-                    textAlign: 'center',
-                  }}
-                >
-                  <Link to={`/movie/${rec.show_id}`}>
-                    <img
-                      src={`/MoviePosters/${filename}.jpg`}
-                      alt={rec.title}
-                      style={{
-                        width: '160px',
-                        height: '240px',
-                        objectFit: 'cover',
-                        borderRadius: '6px',
-                      }}
-                      onError={(e) => (e.currentTarget.style.display = 'none')}
-                    />
-                  </Link>
-                  <p
-                    style={{
-                      fontSize: '12px',
-                      marginTop: '6px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {rec.title}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      <br />
-      <button
-        onClick={() => navigate(from)}
-        style={{
-          display: 'inline-block',
-          marginBottom: '20px',
-          backgroundColor: '#fff',
-          color: '#000',
-          padding: '6px 12px',
-          borderRadius: '5px',
-          textDecoration: 'none',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-        }}
-      >
+      <button onClick={() => navigate(from)} className="back-button">
         ← Back to Previous Page
       </button>
     </div>

@@ -1,0 +1,21 @@
+/* Fixed Footer at the bottom */
+.footer-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #121212; /* Dark background to match the page */
+  padding: 20px 0;
+  text-align: center;
+  z-index: 1000; /* Ensure it stays on top of other content */
+}
+
+.footer-link {
+  color: #75bd5b; /* Set the text color to white */
+  text-decoration: none; /* Remove the underline */
+  font-weight: bold;
+}
+
+.footer-link:hover {
+  text-decoration: underline; /* Underline on hover */
+}
