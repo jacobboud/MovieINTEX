@@ -26,7 +26,6 @@ import FrontNavBar from './components/FrontNavBar';
 
 import CookieBanner from './components/CookieBanner';
 
-
 function App() {
   const location = useLocation(); // This hook now works correctly because of Router
   const isHomePage = location.pathname === '/';
@@ -70,7 +69,6 @@ function App() {
         </div>
       )}
 
-
       {/* Define the routes for the pages */}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -89,23 +87,16 @@ function App() {
           }
         />
 
-        {/* Define the routes for the pages */}
-        <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/create-account" element={<CreateAccountPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-
-            <Route
-                path="/movie/:showId"
-                element={
-                    <AuthorizeView>
-                        <RequireRole roles={['User', 'Admin']}>
-                            <MovieDetail />
-                        </RequireRole>
-                    </AuthorizeView>
-                }
-            />
-
+        <Route
+          path="/movie/:showId"
+          element={
+            <AuthorizeView>
+              <RequireRole roles={['User', 'Admin']}>
+                <MovieDetail />
+              </RequireRole>
+            </AuthorizeView>
+          }
+        />
 
         <Route
           path="/manage-movies"
@@ -158,8 +149,7 @@ function App() {
 function AppWrapper() {
   return (
     <Router>
-            <CookieBanner />
-
+      <CookieBanner />
       <App /> {/* Wrap App component with Router */}
     </Router>
   );
