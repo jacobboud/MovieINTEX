@@ -85,19 +85,23 @@ namespace MovieINTEX.Controllers
             });
         }
 
+        public class FavoriteMovieDto
+        {
+            public string ShowId { get; set; }
+        }
 
         // PUT: api/user/favorite-movie
-        
+        [Authorize]
         [HttpPut("favorite-movie")]
-        public async Task<IActionResult> UpdateFavoriteMovie([FromBody] string showId)
+        public async Task<IActionResult> UpdateFavoriteMovie([FromBody] FavoriteMovieDto dto)
         {
+            Console.WriteLine($"📩 Received showId: {dto.ShowId}");
+
             var identityUserId = _userManager.GetUserId(User);
             var user = await _context.movies_users.FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
             if (user == null) return NotFound();
 
-            Console.WriteLine($"📩 Received showId: {showId}");
-
-            user.FavoriteMovie = showId;
+            user.FavoriteMovie = dto.ShowId;
             await _context.SaveChangesAsync();
 
             return Ok();

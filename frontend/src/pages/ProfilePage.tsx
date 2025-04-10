@@ -45,27 +45,41 @@ export default function ProfilePage() {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-
+  
     try {
-      const res = await axios.get<MovieDto[]>(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`
+      const res = await axios.get(
+        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
+        { withCredentials: true }
       );
-      setSearchResults(res.data);
+  
+      // Manually map snake_case to camelCase
+      const mappedResults = res.data.map((movie: any) => ({
+        showId: movie.show_id,
+        title: movie.title,
+        releaseYear: movie.release_year,
+        description: movie.description,
+      }));
+  
+      console.log('🔍 Mapped Search results:', mappedResults);
+  
+      setSearchResults(mappedResults);
     } catch (err) {
       console.error('Search failed:', err);
     }
   };
+  
 
   const handleSetFavorite = async (movie: MovieDto) => {
     try {
       await axios.put(
         'https://localhost:5000/api/user/favorite-movie',
-        movie.showId,
+        { ShowId: movie.showId },
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
         }
       );
+
       setFavoriteMovie(movie.showId);
       setFavoriteMovieTitle(movie.title);
       setSearchResults([]);

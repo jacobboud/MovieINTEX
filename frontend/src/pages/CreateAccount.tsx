@@ -63,7 +63,7 @@ function Register() {
             throw new Error(errText || 'Registration failed');
           }
           // after successful registration or login:
-          window.location.href = '/new-user';
+          window.location.href = '/profile';
         })
         .catch((error) => {
           const errorMessage = error.message || 'Error registering.';
