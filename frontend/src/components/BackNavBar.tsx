@@ -30,7 +30,7 @@ export default function NavBar() {
           All Movies
         </Link>
         <Link to="/profile" className="navbar-link">
-          Profile
+          Movie Profile
         </Link>
 
         <Logout>

@@ -1,10 +1,15 @@
 // src/pages/Privacy.tsx
 //import React from 'react';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import './Privacy.css';
 import Footer from '../components/Footer';
+import BackNavBar from '../components/BackNavBar';
+import FrontNavBar from '../components/FrontNavBar';
+import { UserContext } from '../components/AuthorizeView';
 
 const PrivacyPage = () => {
+  const user = useContext(UserContext);
+
   useEffect(() => {
     document.body.classList.add('privacy-page');
     return () => {
@@ -14,6 +19,9 @@ const PrivacyPage = () => {
 
   return (
     <div className="container my-5">
+      {/* Conditionally render the NavBar */}
+      {user ? <BackNavBar /> : <FrontNavBar />}
+
       <div className="privacy-container">
         <h1 className="privacy-container-h1">Privacy Policy for CineNiche</h1>
         <p style={{ textAlign: 'center' }}>

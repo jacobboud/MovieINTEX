@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <nav className="d-flex justify-content-center mt-4">
+    <nav className="d-flex justify-content-center mt-4 pagination-container">
       <ul className="pagination">
         <li className={`page-item ${currentPage === 1 && 'disabled'}`}>
           <button
