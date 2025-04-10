@@ -87,13 +87,15 @@ namespace MovieINTEX.Controllers
 
 
         // PUT: api/user/favorite-movie
-        [Authorize]
+        
         [HttpPut("favorite-movie")]
         public async Task<IActionResult> UpdateFavoriteMovie([FromBody] string showId)
         {
             var identityUserId = _userManager.GetUserId(User);
             var user = await _context.movies_users.FirstOrDefaultAsync(u => u.IdentityUserId == identityUserId);
             if (user == null) return NotFound();
+
+            Console.WriteLine($"📩 Received showId: {showId}");
 
             user.FavoriteMovie = showId;
             await _context.SaveChangesAsync();

@@ -6,7 +6,7 @@ import { Card, CardContent } from '../components/ui/Card';
 import { useNavigate } from 'react-router-dom';
 
 interface MovieDto {
-  showId: number;
+  show_id: string; // ✅ match the backend
   title: string;
   description?: string;
 }
@@ -70,9 +70,11 @@ export default function NewUserForm() {
     try {
       // Submit favorite movie
       if (selectedMovie) {
+        console.log('🎬 Submitting favorite movie:', selectedMovie?.show_id);
+        console.log('Type of showId:', typeof selectedMovie?.show_id);
         await axios.put(
           'https://localhost:5000/api/user/favorite-movie',
-          selectedMovie.showId,
+          JSON.stringify(selectedMovie?.show_id),
           {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true,
@@ -176,7 +178,7 @@ export default function NewUserForm() {
 
           <div className="grid gap-4">
             {searchResults.map((movie) => (
-              <Card key={movie.showId} className="bg-white text-left">
+              <Card key={movie.show_id} className="bg-white text-left">
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-xl mb-1">{movie.title}</h3>
                   {movie.description && (
@@ -202,6 +204,7 @@ export default function NewUserForm() {
 
       {step === 2 && selectedMovie && (
         <>
+        {console.log('🧪 selectedMovie @ step 2:', selectedMovie)}
           <div className="mb-6 text-left">
             <h2 className="text-xl font-semibold mb-2">You selected:</h2>
             <p className="text-gray-800">{selectedMovie.title}</p>
@@ -235,6 +238,7 @@ export default function NewUserForm() {
 
       {step === 3 && (
         <>
+          {console.log('🧪 selectedMovie @ step 3:', selectedMovie)}
           <div className="mb-6 text-left">
             <h2 className="text-xl font-semibold mb-2">You selected:</h2>
             <p className="text-gray-800">{selectedMovie?.title}</p>

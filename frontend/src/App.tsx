@@ -20,8 +20,12 @@ import AuthorizeView from './components/AuthorizeView';
 import { useEffect } from 'react';
 import ProfilePage from './pages/ProfilePage';
 import MovieDetail from './components/MovieDetail';
+
 import Footer from './components/Footer';
 import FrontNavBar from './components/FrontNavBar';
+
+import CookieBanner from './components/CookieBanner';
+
 
 function App() {
   const location = useLocation(); // This hook now works correctly because of Router
@@ -66,6 +70,7 @@ function App() {
         </div>
       )}
 
+
       {/* Define the routes for the pages */}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -83,6 +88,24 @@ function App() {
             </AuthorizeView>
           }
         />
+
+        {/* Define the routes for the pages */}
+        <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/create-account" element={<CreateAccountPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+
+            <Route
+                path="/movie/:showId"
+                element={
+                    <AuthorizeView>
+                        <RequireRole roles={['User', 'Admin']}>
+                            <MovieDetail />
+                        </RequireRole>
+                    </AuthorizeView>
+                }
+            />
+
 
         <Route
           path="/manage-movies"
@@ -135,6 +158,8 @@ function App() {
 function AppWrapper() {
   return (
     <Router>
+            <CookieBanner />
+
       <App /> {/* Wrap App component with Router */}
     </Router>
   );
