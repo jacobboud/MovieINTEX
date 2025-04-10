@@ -38,7 +38,7 @@ function AuthorizeView(props: { children: React.ReactNode }) {
         .finally(() => {
           setLoading(false);
         });
-    },200); // <-- 👈 actual delay
+    }, 200); // <-- 👈 actual delay
 
     return () => clearTimeout(timer); // cleanup
   }, []);
@@ -47,14 +47,14 @@ function AuthorizeView(props: { children: React.ReactNode }) {
 
   if (authorized) {
     return (
-      <UserContext.Provider value={user}>
-        {props.children}
-      </UserContext.Provider>
+      <UserContext.Provider value={user}>{props.children}</UserContext.Provider>
     );
   }
 
   return <Navigate to="/login" />;
 }
+
+// hello world
 
 export function AuthorizedUser(props: { value: string }) {
   const user = React.useContext(UserContext);
