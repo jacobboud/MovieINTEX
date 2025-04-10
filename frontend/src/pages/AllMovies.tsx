@@ -5,6 +5,7 @@ import MovieCard from '../components/MovieCard';
 //import { Link } from 'react-router-dom';
 import NavBar from '../components/BackNavBar';
 import './AllMovies.css';
+import Footer from '../components/Footer';
 
 interface Movie {
   show_id: string;
@@ -383,6 +384,7 @@ const AllMovies: React.FC = () => {
           onPageChange={setCurrentPage}
         />
       )}
+      <Footer />
     </div>
   );
 };
