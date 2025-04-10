@@ -4,7 +4,7 @@
 **/bin/
 **/obj/
 
-
+appsettings.Development.json
 
 *.sqlite-shm
 *.sqlite-wal
