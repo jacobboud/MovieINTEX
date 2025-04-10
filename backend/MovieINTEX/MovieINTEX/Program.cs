@@ -4,6 +4,9 @@ using MovieINTEX.Data;
 using System.Security.Claims;
 using MovieINTEX.Models.Dto;
 using MovieINTEX.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.FileProviders;
 
 
@@ -73,12 +76,27 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000", "https://localhost:3000" )
               .AllowCredentials()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
+
+builder.Services.AddAuthentication(options =>
+    {
+        // Set the default scheme for sign-in and challenges
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.CallbackPath = "/signin-google";
+    });
+
 
 var app = builder.Build();
 
@@ -89,10 +107,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// app.Use(async (context, next) =>
+// {
+//     context.Response.Headers.Append("Content-Security-Policy",
+//         "default-src 'self' https://localhost:5000; " +
+//         "connect-src 'self' https://localhost:5000 https://www.google-analytics.com https://accounts.google.com https://oauth2.googleapis.com; " +
+//         "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com; " +
+//         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+//         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://www.google-analytics.com; " +
+//         "img-src 'self' data: https://localhost:5000 https://www.google-analytics.com; " +
+//         "frame-src https://accounts.google.com; " +
+//         "frame-ancestors 'self';");
+//     await next();
+// });
+
 app.UseCors("AllowFrontend");
 
 
 app.UseHttpsRedirection();
+
 
 app.UseAuthentication();
 
@@ -102,11 +135,94 @@ app.MapControllers();
 
 app.MapIdentityApi<IdentityUser>();
 
+
+
 app.MapGet("/auth-status", (ClaimsPrincipal user) => 
 {
     var isAuthenticated = user.Identity?.IsAuthenticated ?? false;
     return Results.Ok(new { isAuthenticated });
 });
+
+
+
+app.MapGet("/login-google", async context =>
+{
+    var props = new AuthenticationProperties
+    {
+        RedirectUri = "https://localhost:3000/new-user" // ✅ Full redirect to frontend
+    };
+    await context.ChallengeAsync(GoogleDefaults.AuthenticationScheme, props);
+});
+
+app.MapGet("/signin-google", async (
+    HttpContext httpContext,
+    UserManager<IdentityUser> userManager,
+    SignInManager<IdentityUser> signInManager,
+    MovieDbContext movieDbContext) =>
+{
+    var info = await signInManager.GetExternalLoginInfoAsync();
+    if (info == null)
+    {
+        return Results.Redirect("https://localhost:3000/login-failed");
+    }
+
+    // Try sign in first
+    var signInResult = await signInManager.ExternalLoginSignInAsync(
+        info.LoginProvider, info.ProviderKey, isPersistent: false);
+
+    IdentityUser user;
+
+    if (!signInResult.Succeeded)
+    {
+        // Register new user
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        var name = info.Principal.FindFirstValue(ClaimTypes.Name) ?? "No Name";
+
+        user = new IdentityUser
+        {
+            Email = email,
+            UserName = email
+        };
+
+        var result = await userManager.CreateAsync(user);
+        if (!result.Succeeded)
+        {
+            return Results.BadRequest(result.Errors);
+        }
+
+        await userManager.AddLoginAsync(user, info);
+        await userManager.AddToRoleAsync(user, "User");
+
+        // ✅ Add to Movie_Users DB
+        var movieUser = new Movie_Users
+        {
+            Email = email,
+            Name = name,
+            IdentityUserId = user.Id,
+            Phone = "123-123-1234",
+            Gender = "Male",
+            City = "Provo",
+            State = "UT",
+            Zip = "84604",
+            Age = 33 // if required
+        };
+
+
+        movieDbContext.movies_users.Add(movieUser);
+        await movieDbContext.SaveChangesAsync();
+    }
+    else
+    {
+        user = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+    }
+
+    // Sign in with cookie
+    await signInManager.SignInAsync(user, isPersistent: false);
+
+    return Results.Redirect("https://localhost:3000/new-user");
+});
+
+
 
 
 app.MapPost("/custom-register", async (
@@ -175,10 +291,10 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
 
 app.MapGet("/pingauth", (ClaimsPrincipal user) =>
 {
-    if (!user.Identity?.IsAuthenticated ?? false)
-    {
-        return Results.Unauthorized();
-    }
+    // if (!user.Identity?.IsAuthenticated ?? false)
+    // {
+    //     return Results.Unauthorized();
+    // }
 
     var email = user.FindFirstValue(ClaimTypes.Email) ?? "unknown@example.com";
     var roles = user.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();

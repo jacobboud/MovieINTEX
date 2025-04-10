@@ -135,11 +135,13 @@ function LoginPage() {
               <hr className="my-4" />
               <div className="d-grid mb-2">
                 <button
-                  className="btn btn-google btn-login text-uppercase fw-bold"
                   type="button"
+                  className="btn btn-google btn-login text-uppercase fw-bold"
+                  onClick={() => {
+                    window.location.href = 'https://localhost:5000/login-google';
+                  }}
                 >
-                  <i className="fa-brands fa-google me-2"></i> Sign in with
-                  Google
+                  Sign in with Google
                 </button>
               </div>
               <div className="d-grid mb-2">

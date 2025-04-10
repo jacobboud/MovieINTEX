@@ -1,28 +1,61 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import csp from 'vite-plugin-csp';
+import mkcert from 'vite-plugin-mkcert';
 
-// https://vite.dev/config/
-// vite.config.ts or vite.config.js
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    mkcert(),
+    csp({
+      enabled: true,
+      policy: {
+        'default-src': ["self", "https://localhost:5000"],
+        'connect-src': [
+          "self",
+          "https://localhost:5000",
+          "https://www.google-analytics.com",
+          "https://accounts.google.com",
+          "https://oauth2.googleapis.com"
+        ],
+        'script-src': [
+          "self",
+          "unsafe-inline",
+          "unsafe-eval",
+          "https://localhost:5000",
+          "https://accounts.google.com",
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ],
+        'style-src': [
+          "self",
+          "unsafe-inline",
+          "https://fonts.googleapis.com",
+          "https://use.fontawesome.com"
+        ],
+        'font-src': [
+          "self",
+          "https://fonts.gstatic.com",
+          "https://use.fontawesome.com"
+        ],
+        'img-src': [
+          "self",
+          "data:",
+          "https://localhost:5000",
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ],
+        'frame-src': [
+          "https://accounts.google.com"
+        ],
+        'frame-ancestors': ["self"] // ✅ No quotes here either
+      }
+    })
+  ],
+
   server: {
     port: 3000,
-    headers: {
-      'Content-Security-Policy': [
-        // Only allow scripts and content from your own origin and API backend
-        "default-src 'self' https://localhost:5000",
-        // Only allow inline styles for now if needed (consider removing 'unsafe-inline' later)
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com",
-        // Only load scripts from your dev server and backend
-        "script-src 'self' 'unsafe-inline' https://localhost:5000",
-        // Allow fonts from Google and Font Awesome
-        "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com",
-        // Allow images from backend and data URIs (like base64 icons)
-        "img-src 'self' data: https://localhost:5000",
-        // Prevent your site from being embedded in other pages
-        "frame-ancestors 'none'",
-      ].join('; '),
-    },
+    https: true,
     proxy: {
       '/Movie/': {
         target: 'https://localhost:5000',

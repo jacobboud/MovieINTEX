@@ -10,5 +10,10 @@ export function useCookieConsent() {
     setConsent(true);
   };
 
-  return { consent, giveConsent };
+  const revokeConsent = () => {
+    localStorage.removeItem('cookie-consent');
+    setConsent(false);
+  };
+
+  return { consent, giveConsent, revokeConsent };
 }
