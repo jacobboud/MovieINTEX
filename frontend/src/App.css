@@ -3,16 +3,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;600&display=swap');
 
 /* App.css */
-
 body,
 html,
-#root,
-body {
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  padding-top: 10px;
+
+  padding-top: 20px;
 }
 
 .body {
@@ -28,17 +26,21 @@ body {
 }
 
 .default-background {
-  background-color: #393636;
+  background-color: #333;
   color: white;
 }
 
+/* Home page styles */
 .home-page {
   background-image: url('/MoviePosters.jpg');
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-position: center top;
+  background-repeat: repeat-y;
+  animation: scrollBackground 60s linear infinite;
   color: white;
   font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .fullscreen-overlay {
@@ -47,33 +49,19 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black */
-  z-index: 0; /* Make sure it's behind the content */
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 0;
 }
 
-/*Privacy stuff */
+/* App.css */
 
-body.privacy-page {
-  background-image: none !important;
-  background-color: #393636;
-  color: #fff;
-  font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* Hide the fullscreen-overlay on privacy page */
+body:not(.privacy-page) .fullscreen-overlay {
+  display: block;
 }
 
-body.privacy-page h1,
-body.privacy-page h4 {
-  color: black;
-}
-
-body.privacy-page p,
-body.privacy-page ul {
-  color: black;
-}
-
-.privacy-container {
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 20px;
+body.privacy-page .fullscreen-overlay {
+  display: none;
 }
 
 .container {
@@ -90,42 +78,46 @@ body.privacy-page ul {
   overflow-y: auto;
 }
 
-/* In App.css */
-.modal-body {
-  display: flex;
-  flex-direction: column; /* Stack modal content vertically */
-  gap: 1rem; /* Add spacing between form groups */
+.bg-white {
+  background-color: white;
 }
 
-.bg-white {
-  background-color: white; /* Ensure the background color is solid white */
-}
 h1,
 h4 {
-  color: #333; /* Ensure headings are dark for visibility */
+  color: #333;
 }
 
 p,
 ul {
-  color: white; /* Light gray for text */
+  color: white;
 }
 
 ul {
-  padding-left: 20px; /* Better padding for the list */
+  padding-left: 20px;
+}
+
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  width: 100%;
+  padding: 1rem;
 }
 
 .word {
-  background-color: rgba(0, 0, 0, 0.6); /* dark transparent box for contrast */
-  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 4rem;
   border-radius: 1rem;
   max-width: 600px;
   width: 100%;
   animation: fadeIn 0.5s ease;
+  z-index: 1000;
 }
 
 .word h1 {
-  font-size: 3rem; /* make it big */
-  font-family: 'Cinzel', serif; /* cinematic, classy font */
+  font-size: 3rem;
+  font-family: 'Cinzel', serif;
   margin-bottom: 1rem;
   letter-spacing: 1px;
   text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
@@ -169,35 +161,41 @@ ul {
   background-color: #565e64;
 }
 
-/* App.css */
-
-/* Fixed Footer at the bottom */
+/* Fixed Footer */
 .footer-fixed {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: #121212; /* Dark background to match the page */
+  background-color: #121212;
   padding: 20px 0;
   text-align: center;
-  z-index: 1000; /* Ensure it stays on top of other content */
+  z-index: 1000;
 }
 
 .footer-link {
-  color: white; /* Set the text color to white */
-  text-decoration: none; /* Remove the underline */
+  color: white;
+  text-decoration: none;
   font-weight: bold;
 }
 
 .footer-link:hover {
-  text-decoration: underline; /* Underline on hover */
+  text-decoration: underline;
 }
 
-/* Ensure no other elements overlap with the fixed footer */
 body {
-  padding-bottom: 50px; /* Space for the footer */
+  padding-bottom: 50px;
 }
 
+/* Optional: Error styling */
+.error {
+  color: #e74c3c;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -209,91 +207,11 @@ body {
   }
 }
 
-/* Create Account Things */
-
-/* App.css */
-
-/* Style for the container to position the form box */
-.create-account-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  padding: 0 1rem;
+@keyframes scrollBackground {
+  0% {
+    background-position: center top;
+  }
+  100% {
+    background-position: center bottom;
+  }
 }
-
-.card {
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Set the form's height and enable scroll */
-.card-body {
-  background: #fff;
-  padding: 2rem;
-  max-height: 500px; /* Adjust as needed */
-  overflow-y: auto; /* Makes the form scrollable */
-}
-
-/* Add space between form sections */
-.form-floating {
-  margin-bottom: 1.25rem;
-}
-
-/* Ensure the form inputs still behave well */
-.form-floating input {
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #333;
-}
-
-.form-floating label {
-  position: absolute;
-  top: 50%;
-  left: 1.25rem;
-  transform: translateY(-50%);
-  color: #e4e0e0;
-  font-size: 1rem;
-}
-
-.form-floating input:focus ~ label,
-.form-floating input:not(:placeholder-shown) ~ label {
-  top: 0;
-  font-size: 0.85rem;
-  color: #007bff;
-}
-
-.d-grid button {
-  padding: 1rem;
-  font-size: 1rem;
-  text-transform: uppercase;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-}
-
-.btn-login {
-  background-color: #007bff;
-  color: white;
-}
-
-.RKHeader {
-    font-family: "Mulish", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 200rem;
-    font-weight: bold;
-}
-
-
-/* Optional: Error styling */
-.error {
-  color: #e74c3c;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 1rem;
-}
-

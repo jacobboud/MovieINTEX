@@ -32,10 +32,10 @@
 .section-container {
   margin-bottom: 3rem;
   padding: 1rem;
-  background-color: white;
+  background-color: rgb(62, 61, 61);
   border-radius: 0.5rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  color: black;
+  color: white;
 }
 
 /* Favorite movie section */
@@ -79,7 +79,7 @@
 
 .movie-search-results .movie-item {
   background-color: white;
-  color: black;
+  color: white;
   padding: 1rem;
   border-radius: 0.5rem;
   margin-top: 1rem;
@@ -127,7 +127,7 @@
 }
 
 .movie-ratings-table th {
-  background-color: #113a1f;
+  background-color: #1db954;
   color: white;
   font-weight: bold;
 }

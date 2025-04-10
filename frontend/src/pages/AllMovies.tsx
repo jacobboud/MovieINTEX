@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Pagination from '../components/Pagination';
 import MovieCard from '../components/MovieCard';
-import { Link } from 'react-router-dom';
+//import { Link } from 'react-router-dom';
+import NavBar from '../components/BackNavBar';
+import './AllMovies.css';
+import Footer from '../components/Footer';
 
 interface Movie {
   show_id: string;
@@ -76,7 +79,10 @@ const AllMovies: React.FC = () => {
     if (normalizedCategory) params.category = normalizedCategory;
 
     try {
-      const res = await axios.get('/Movie/paged-movies', { params, withCredentials: true, });
+      const res = await axios.get('/Movie/paged-movies', {
+        params,
+        withCredentials: true,
+      });
       console.log('Fetched movies response:', res.data);
 
       if (Array.isArray(res.data.movies)) {
@@ -98,7 +104,9 @@ const AllMovies: React.FC = () => {
   // Fetch movie categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/Movie/categories', {withCredentials: true,});
+      const res = await axios.get('/Movie/categories', {
+        withCredentials: true,
+      });
       if (Array.isArray(res.data)) {
         setCategories(res.data);
       } else {
@@ -207,43 +215,9 @@ const AllMovies: React.FC = () => {
 
   return (
     <div className="container my-4">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '15px',
-          marginBottom: '20px',
-        }}
-      >
-        <Link
-          to="/movie"
-          style={{
-            backgroundColor: '#1db954',
-            color: '#fff',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-          }}
-        >
-          Home
-        </Link>
-        <Link
-          to="/profile"
-          style={{
-            backgroundColor: '#fff',
-            color: '#000',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-          }}
-        >
-          Edit Profile
-        </Link>
-      </div>
+      <NavBar />
 
-      <h1 className="mb-4 text-center">All Movies</h1>
+      <h1 className="heading-bebas">All Movies</h1>
 
       {/* 🔍 Search Bar */}
       <div className="text-center mb-4">
@@ -259,25 +233,13 @@ const AllMovies: React.FC = () => {
             placeholder="Search for a movie..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              padding: '10px',
-              width: '80%',
-              maxWidth: '400px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
+            className="search-input"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={clearSearch}
-              style={{
-                background: 'transparent',
-                color: '#000',
-                fontSize: '18px',
-                border: 'none',
-                cursor: 'pointer',
-              }}
+              className="clear-button"
               title="Clear search"
             >
               ❌
@@ -422,6 +384,7 @@ const AllMovies: React.FC = () => {
           onPageChange={setCurrentPage}
         />
       )}
+      <Footer />
     </div>
   );
 };
