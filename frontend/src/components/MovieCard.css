@@ -1,0 +1,45 @@
+/* MovieCard.css */
+
+.movie-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.375rem; /* Rounded corners for the card */
+  overflow: hidden; /* Prevent content from overflowing the card */
+}
+
+.movie-card-img {
+  width: 100%;
+  height: 330px; /* Fixed height for movie poster */
+  object-fit: cover; /* Ensures the image covers the box without distortion */
+  transition: transform 0.3s ease-in-out; /* Smooth transition for hover effect */
+}
+
+.movie-card-body {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+}
+
+.movie-title {
+  white-space: nowrap; /* Prevents the title from wrapping */
+  overflow: hidden; /* Hides overflow text */
+  text-overflow: ellipsis; /* Adds ellipsis (...) for overflow text */
+  font-size: 1.25rem; /* Title font size */
+  font-weight: bold;
+  margin: 0;
+  text-decoration: none !important;
+  color: black; /* Remove any margin */
+}
+
+.movie-card:hover .movie-card-img {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+/* Additional styles for shadow effects */
+.shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hover\:shadow-lg:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}

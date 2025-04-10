@@ -216,60 +216,42 @@ const AllMovies: React.FC = () => {
   return (
     <div className="container my-4">
       <NavBar />
-
       <h1 className="heading-bebas">All Movies</h1>
 
       {/* 🔍 Search Bar */}
-      <div className="text-center mb-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSearch(searchQuery);
-          }}
-          style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
-        >
-          <input
-            type="text"
-            placeholder="Search for a movie..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="clear-button"
-              title="Clear search"
-            >
-              ❌
-            </button>
-          )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSearch(searchQuery);
+        }}
+        className="d-flex justify-content-center gap-4 mb-4 flex-wrap"
+      >
+        <input
+          type="text"
+          placeholder="Search for a movie..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
+        {searchQuery && (
           <button
-            type="submit"
-            style={{
-              padding: '10px 20px',
-              borderRadius: '4px',
-              border: 'none',
-              backgroundColor: '#1db954',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
+            type="button"
+            onClick={clearSearch}
+            className="clear-button"
+            title="Clear search"
           >
-            Search
+            ❌
           </button>
-        </form>
-      </div>
+        )}
+        <button type="submit">Search</button>
+      </form>
 
-      {/* Filter + Sort + Page Size Controls */}
-      <div className="d-flex flex-wrap justify-content-center gap-4 mb-4">
-        {/* Category Dropdown */}
-        <div className="text-center">
-          <label className="form-label me-2 fw-semibold">
-            Filter by Genre:
-          </label>
+      {/* 🔽 Filters + Sorting */}
+      <div className="d-flex justify-content-center gap-4 flex-wrap mb-4">
+        <div>
+          <label className="form-label">Filter by Genre:</label>
           <select
-            className="form-select w-auto d-inline"
+            className="form-select"
             value={category ?? 'All'}
             onChange={(e) =>
               handleCategoryChange(
@@ -286,41 +268,10 @@ const AllMovies: React.FC = () => {
           </select>
         </div>
 
-        {/* Category Recommendation Section */}
-        {category && recommendedMovies.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-center">
-              Recommended {category} Movies You Might Like
-            </h3>
-            <div className="row justify-content-center">
-              {recommendedMovies.slice(0, 4).map((movie) => (
-                <div className="col-md-3 mb-4" key={movie.show_id}>
-                  <MovieCard movie={movie} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Recommended for You Section (when no category is selected) */}
-        {!category && recommendedMovies.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-center">Recommended for You</h3>
-            <div className="row justify-content-center">
-              {recommendedMovies.slice(0, 4).map((movie) => (
-                <div className="col-md-3 mb-4" key={movie.show_id}>
-                  <MovieCard movie={movie} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Sort Dropdown */}
-        <div className="text-center">
-          <label className="form-label me-2 fw-semibold">Sort by:</label>
+        <div>
+          <label className="form-label">Sort by:</label>
           <select
-            className="form-select w-auto d-inline"
+            className="form-select"
             value={sortBy}
             onChange={handleSortChange}
           >
@@ -332,13 +283,10 @@ const AllMovies: React.FC = () => {
           </select>
         </div>
 
-        {/* Page Size Dropdown */}
-        <div className="text-center">
-          <label className="form-label me-2 fw-semibold">
-            Movies per Page:
-          </label>
+        <div>
+          <label className="form-label">Movies per Page:</label>
           <select
-            className="form-select w-auto d-inline"
+            className="form-select"
             value={selectedPageSize}
             onChange={handlePageSizeChange}
           >
@@ -349,16 +297,46 @@ const AllMovies: React.FC = () => {
         </div>
       </div>
 
-      <br />
+      {/* Recommended for You Section (when no category is selected) */}
+      {!category && recommendedMovies.length > 0 && (
+        <div className="recommended-section">
+          <h3 className="recommended-header">Recommended for You</h3>
+          <div className="recommended-carousel">
+            {recommendedMovies.slice(0, 10).map((movie) => (
+              <div key={movie.show_id} className="carousel-card">
+                <MovieCard movie={movie} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Main Movie Grid */}
-      <div className="row">
+      {/* Category Recommendation Section */}
+      {category && recommendedMovies.length > 0 && (
+        <div className="recommended-section">
+          <h3 className="recommended-header">Recommended {category} Movies</h3>
+          <div className="recommended-carousel">
+            {recommendedMovies.slice(0, 10).map((movie) => (
+              <div key={movie.show_id} className="carousel-card">
+                <MovieCard movie={movie} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <h2 className="all-movies-header">All Movies</h2>
+
+      {/* 🎬 Main Grid */}
+      <div
+        className={`movie-grid ${searchResults.length > 0 ? 'extra-bottom-margin' : ''} `}
+      >
         {loading ? (
           <p className="text-center text-muted">Loading movies...</p>
         ) : searchSubmitted ? (
           searchResults.length > 0 ? (
             searchResults.map((movie) => (
-              <div className="col-md-3 mb-4" key={movie.show_id}>
+              <div className="movie-card-wrapper" key={movie.show_id}>
                 <MovieCard movie={movie} />
               </div>
             ))
@@ -367,7 +345,7 @@ const AllMovies: React.FC = () => {
           )
         ) : movies.length > 0 ? (
           movies.map((movie) => (
-            <div className="col-md-3 mb-4" key={movie.show_id}>
+            <div className="movie-card-wrapper" key={movie.show_id}>
               <MovieCard movie={movie} />
             </div>
           ))
@@ -376,7 +354,7 @@ const AllMovies: React.FC = () => {
         )}
       </div>
 
-      {/* Pagination */}
+      {/* 🔄 Pagination */}
       {!searchSubmitted && (
         <Pagination
           currentPage={currentPage}
@@ -384,6 +362,7 @@ const AllMovies: React.FC = () => {
           onPageChange={setCurrentPage}
         />
       )}
+
       <Footer />
     </div>
   );

@@ -45,13 +45,13 @@ export default function ProfilePage() {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-  
+
     try {
       const res = await axios.get(
         `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
         { withCredentials: true }
       );
-  
+
       // Manually map snake_case to camelCase
       const mappedResults = res.data.map((movie: any) => ({
         showId: movie.show_id,
@@ -59,15 +59,14 @@ export default function ProfilePage() {
         releaseYear: movie.release_year,
         description: movie.description,
       }));
-  
+
       console.log('🔍 Mapped Search results:', mappedResults);
-  
+
       setSearchResults(mappedResults);
     } catch (err) {
       console.error('Search failed:', err);
     }
   };
-  
 
   const handleSetFavorite = async (movie: MovieDto) => {
     try {
@@ -163,40 +162,42 @@ export default function ProfilePage() {
         </div>
 
         <h2>My Movie Ratings:</h2>
-        <div className="section-container movie-ratings-table">
-          <table className="table-auto mx-auto">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Rating</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ratings.map((entry, index) => (
-                <tr key={`${entry.showId}-${index}`}>
-                  <td>{entry.title}</td>
-                  <td>
-                    <select
-                      value={entry.rating}
-                      onChange={(e) =>
-                        handleRatingChange(index, parseInt(e.target.value))
-                      }
-                    >
-                      {[1, 2, 3, 4, 5].map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+        <div className="movie-ratings-table">
+          <div className="table-wrapper">
+            <table className="table-auto mx-auto">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Rating</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ratings.map((entry, index) => (
+                  <tr key={`${entry.showId}-${index}`}>
+                    <td>{entry.title}</td>
+                    <td>
+                      <select
+                        value={entry.rating}
+                        onChange={(e) =>
+                          handleRatingChange(index, parseInt(e.target.value))
+                        }
+                      >
+                        {[1, 2, 3, 4, 5].map((r) => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <h2>My Favorite Categories:</h2>
-        <div className="section-container categories-services-section">
+        <div className="categories-services-section">
           <ul className="categories-list">
             {Object.keys(categories).map((key) => (
               <li key={key} className="categories-item">
@@ -213,7 +214,7 @@ export default function ProfilePage() {
 
         {/* Services Section */}
         <h2>My Streaming Services:</h2>
-        <div className="section-container categories-services-section">
+        <div className="categories-services-section">
           <ul className="services-list">
             {Object.keys(services).map((key) => (
               <li key={key} className="services-item">
