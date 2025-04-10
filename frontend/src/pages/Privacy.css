@@ -2,7 +2,7 @@
 
 /* Global Styles for Privacy Page */
 .privacy-container {
-  background-color: #c8c5c5;
+  background-color: #e2dcdc;
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -10,6 +10,7 @@
   margin: 0 auto;
   color: black;
   margin-bottom: 110px;
+  text-align: left;
 }
 
 /* Header styles */
@@ -36,11 +37,12 @@
   font-size: 1.1rem;
   color: black;
   line-height: 1.6;
+  margin-left: 30px;
 }
 
 /* List Styling */
 .privacy-container ul {
-  padding-left: 20px;
+  padding-left: 200px;
   list-style: none;
 }
 
