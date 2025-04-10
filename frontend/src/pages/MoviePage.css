@@ -199,7 +199,7 @@ button[type='submit']:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.movie-title-p {
+.movie-title {
   font-size: 16px !important; /* Smaller font size */
   margin-top: 6px;
   white-space: nowrap;
