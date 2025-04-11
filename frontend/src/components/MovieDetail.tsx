@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import './MovieDetail.css';
+import BackNavBar from './BackNavBar';
 
 interface MovieDetailData {
   show_id: string;
@@ -127,6 +128,7 @@ export default function MovieDetail() {
 
   return (
     <div className="movie-detail-container">
+      <BackNavBar />
       <img
         src={`/MoviePosters/${sanitizeTitleForFilename(movie.title)}.jpg`}
         alt={movie.title}

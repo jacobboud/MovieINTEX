@@ -47,10 +47,22 @@ export default function ProfilePage() {
     if (!query.trim()) return;
 
     try {
-      const res = await axios.get<MovieDto[]>(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`
+      const res = await axios.get(
+        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
+        { withCredentials: true }
       );
-      setSearchResults(res.data);
+
+      // Manually map snake_case to camelCase
+      const mappedResults = res.data.map((movie: any) => ({
+        showId: movie.show_id,
+        title: movie.title,
+        releaseYear: movie.release_year,
+        description: movie.description,
+      }));
+
+      console.log('🔍 Mapped Search results:', mappedResults);
+
+      setSearchResults(mappedResults);
     } catch (err) {
       console.error('Search failed:', err);
     }
@@ -60,12 +72,13 @@ export default function ProfilePage() {
     try {
       await axios.put(
         'https://localhost:5000/api/user/favorite-movie',
-        movie.showId,
+        { ShowId: movie.showId },
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
         }
       );
+
       setFavoriteMovie(movie.showId);
       setFavoriteMovieTitle(movie.title);
       setSearchResults([]);
@@ -149,40 +162,42 @@ export default function ProfilePage() {
         </div>
 
         <h2>My Movie Ratings:</h2>
-        <div className="section-container movie-ratings-table">
-          <table className="table-auto mx-auto">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Rating</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ratings.map((entry, index) => (
-                <tr key={`${entry.showId}-${index}`}>
-                  <td>{entry.title}</td>
-                  <td>
-                    <select
-                      value={entry.rating}
-                      onChange={(e) =>
-                        handleRatingChange(index, parseInt(e.target.value))
-                      }
-                    >
-                      {[1, 2, 3, 4, 5].map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+        <div className="movie-ratings-table">
+          <div className="table-wrapper">
+            <table className="table-auto mx-auto">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Rating</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ratings.map((entry, index) => (
+                  <tr key={`${entry.showId}-${index}`}>
+                    <td>{entry.title}</td>
+                    <td>
+                      <select
+                        value={entry.rating}
+                        onChange={(e) =>
+                          handleRatingChange(index, parseInt(e.target.value))
+                        }
+                      >
+                        {[1, 2, 3, 4, 5].map((r) => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <h2>My Favorite Categories:</h2>
-        <div className="section-container categories-services-section">
+        <div className="categories-services-section">
           <ul className="categories-list">
             {Object.keys(categories).map((key) => (
               <li key={key} className="categories-item">
@@ -199,7 +214,7 @@ export default function ProfilePage() {
 
         {/* Services Section */}
         <h2>My Streaming Services:</h2>
-        <div className="section-container categories-services-section">
+        <div className="categories-services-section">
           <ul className="services-list">
             {Object.keys(services).map((key) => (
               <li key={key} className="services-item">
@@ -220,9 +235,9 @@ export default function ProfilePage() {
 
         <button
           onClick={() => navigate('/movie')}
-          className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded shadow"
+          className="absolute top-4 left-4 bg-white text-black px-6 py-3 mb-24 rounded shadow"
         >
-          ← Back to Movie Page
+          ← To Movie Page
         </button>
       </div>
     </>

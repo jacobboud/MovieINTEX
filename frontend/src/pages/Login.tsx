@@ -102,49 +102,51 @@ function LoginPage() {
               <label htmlFor="password">Password</label>
             </div>
 
-            <div className="remember-me-container mb-3">
-              <input
-                type="checkbox"
-                value=""
-                id="rememberme"
-                name="rememberme"
-                checked={rememberme}
-                onChange={handleChange}
-              />
-              <label className="remember-me-text" htmlFor="rememberme">
-                Remember password
-              </label>
-            </div>
-            <div className="d-grid mb-2">
-              <button className="btn-login" type="submit">
-                Sign in
-              </button>
-            </div>
-            <div className="d-grid mb-2">
-              <button
-                className="btn-outline-secondary"
-                onClick={handleRegisterClick}
-              >
-                Register
-              </button>
-            </div>
-            <hr className="my-4" />
-            <div className="d-grid mb-2">
-              <button className="btn-google" type="button">
-                <i className="fa-brands fa-google me-2"></i> Sign in with Google
-              </button>
-            </div>
-            <div className="d-grid mb-2">
-              <button className="btn-facebook" type="button">
-                <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
-                Facebook
-              </button>
-            </div>
+
+              <div className="remember-me-container mb-3">
+                  <input
+                      type="checkbox"
+                      value=""
+                      id="rememberme"
+                      name="rememberme"
+                      checked={rememberme}
+                      onChange={handleChange}
+                  />
+                  <label className="remember-me-text" htmlFor="rememberme">
+                      Remember password
+                  </label>
+              </div>
+              <div className="d-grid mb-2">
+                  <button className="btn-login" type="submit">
+                      Sign in
+                  </button>
+              </div>
+              <div className="d-grid mb-2">
+                  <button
+                      className="btn-outline-secondary"
+                      onClick={handleRegisterClick}
+                  >
+                      Register
+                  </button>
+              </div>
+              <hr className="my-4" />
+              <div className="d-grid mb-2">
+                  <button className="btn-google" type="button" 
+                          onClick={() => {window.location.href = 'https://localhost:5000/login-google';}}  >
+                      <i className="fa-brands fa-google me-2"></i> Sign in with Google
+                  </button>
+              </div>
+              <div className="d-grid mb-2">
+                  <button className="btn-facebook" type="button">
+                      <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
+                      Facebook
+                  </button>
+              </div>
           </form>
-          {error && <p className="error">{error}</p>}
+            {error && <p className="error">{error}</p>}
         </div>
       </div>
-      <Footer />
+        <Footer />
     </div>
   );
 }

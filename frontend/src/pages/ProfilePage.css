@@ -1,3 +1,5 @@
+Profilepage.css
+
 /* ProfilePage.css */
 
 /* Header styling */
@@ -30,6 +32,7 @@
 }
 
 .section-container {
+  margin-top: 32px;
   margin-bottom: 3rem;
   padding: 1rem;
   background-color: rgb(62, 61, 61);
@@ -54,7 +57,7 @@
 
 .favorite-movie-section p {
   margin-top: 20px;
-  color: black;
+  color: white;
   font-size: 20px;
 }
 
@@ -79,7 +82,7 @@
 
 .movie-search-results .movie-item {
   background-color: white;
-  color: white;
+  color: black;
   padding: 1rem;
   border-radius: 0.5rem;
   margin-top: 1rem;
@@ -103,11 +106,6 @@
 }
 
 /* Movie ratings table */
-.movie-ratings-table {
-  margin-bottom: 3rem;
-  max-width: 100%;
-}
-
 .movie-ratings-table table {
   width: 100%;
   min-width: 600px;
@@ -146,6 +144,7 @@
 
 /* Categories and services sections */
 .categories-services-section {
+  margin-top: 32px;
   margin-bottom: 3rem;
 }
 

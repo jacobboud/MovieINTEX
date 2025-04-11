@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import './MoviePage.css';
 import '../App.css';
 import NavBar from '../components/BackNavBar';
+import AuthorizeView from '../components/AuthorizeView';
+import RequireRole from '../components/RequireRole';
+import Footer from '../components/Footer';
 
 interface CarouselItem {
   title: string;
@@ -90,6 +93,14 @@ export default function MoviePage() {
 
       <h1 className="heading-bebas">Welcome {userName}</h1>
 
+      <AuthorizeView>
+        <RequireRole roles={['Admin']}>
+          <Link to="/manage-movies" className="navbar-btn">
+            Manage Movies
+          </Link>
+        </RequireRole>
+      </AuthorizeView>
+
       {/* Hero Section */}
       {heroMovie && (
         <div className="hero-section">
@@ -165,7 +176,7 @@ export default function MoviePage() {
                           }
                         />
                       </Link>
-                      <p className="movie-title-p">{item.title}</p>
+                      <p className="movie-title">{item.title}</p>
                     </div>
                   );
                 })}
@@ -218,6 +229,7 @@ export default function MoviePage() {
           </div>
         );
       })}
+      <Footer />
     </div>
   );
 }

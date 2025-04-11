@@ -199,8 +199,8 @@ button[type='submit']:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.movie-title-p {
-  font-size: 16px !important; /* Smaller font size */
+.movie-title {
+  font-size: 18px !important; /* Smaller font size */
   margin-top: 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -226,4 +226,31 @@ button[type='submit']:hover {
   .hero-description {
     font-size: 14px;
   }
+}
+
+.navbar-btn {
+  display: inline-block;
+  background-color: #1db954; /* Green color like the brand */
+  color: white;
+  font-size: 25px;
+  padding: 20px 40px;
+  border-radius: 8px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 40px;
+}
+
+.navbar-btn:hover {
+  background-color: #176633; /* Darker green on hover */
+}
+
+.navbar-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-btn:active {
+  background-color: #147d39; /* Even darker green when clicked */
 }

@@ -25,6 +25,8 @@ import Footer from './components/Footer';
 import FrontNavBar from './components/FrontNavBar';
 
 import CookieBanner from './components/CookieBanner';
+import ThemePreference from './components/ThemePreference';
+import GoogleAnalyticsLoader from './components/GoogleAnalyticsLoader';
 
 function App() {
   const location = useLocation(); // This hook now works correctly because of Router
@@ -149,6 +151,9 @@ function App() {
 function AppWrapper() {
   return (
     <Router>
+            <CookieBanner />
+            <ThemePreference />
+            <GoogleAnalyticsLoader />
       <CookieBanner />
       <App /> {/* Wrap App component with Router */}
     </Router>

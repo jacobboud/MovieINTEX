@@ -44,8 +44,14 @@
   border: none;
   font-size: 18px;
   cursor: pointer;
+  text-decoration: none !important;
 }
 
 .navbar-logout:hover {
   text-decoration: underline;
+  text-decoration-color: #ff6b6b !important;
+}
+
+.logout {
+  text-decoration: none;
 }
