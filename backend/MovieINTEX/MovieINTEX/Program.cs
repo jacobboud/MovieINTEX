@@ -58,11 +58,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.Name = "AspNetCore.Identity.Application";
-    
+
     // options.LoginPath = "";
     // options.LoginPath = "/login"; // This value isn't actually used, but it's fine
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    
+
     options.LoginPath = ""; // disables automatic redirect
     options.Events.OnRedirectToLogin = context =>
     {
@@ -76,7 +76,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000" )
+        policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
               .AllowCredentials()
               .AllowAnyHeader()
               .AllowAnyMethod();
@@ -90,8 +90,9 @@ builder.Services.AddAuthentication(options =>
         options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
     })
     .AddCookie()
-    .AddGoogle(options =>
+    .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
     {
+        options.SignInScheme = IdentityConstants.ExternalScheme;
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
         options.CallbackPath = "/signin-google";
@@ -107,19 +108,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// app.Use(async (context, next) =>
-// {
-//     context.Response.Headers.Append("Content-Security-Policy",
-//         "default-src 'self' https://localhost:5000; " +
-//         "connect-src 'self' https://localhost:5000 https://www.google-analytics.com https://accounts.google.com https://oauth2.googleapis.com; " +
-//         "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com; " +
-//         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-//         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://www.google-analytics.com; " +
-//         "img-src 'self' data: https://localhost:5000 https://www.google-analytics.com; " +
-//         "frame-src https://accounts.google.com; " +
-//         "frame-ancestors 'self';");
-//     await next();
-// });
+
 
 app.UseCors("AllowFrontend");
 
@@ -137,7 +126,7 @@ app.MapIdentityApi<IdentityUser>();
 
 
 
-app.MapGet("/auth-status", (ClaimsPrincipal user) => 
+app.MapGet("/auth-status", (ClaimsPrincipal user) =>
 {
     var isAuthenticated = user.Identity?.IsAuthenticated ?? false;
     return Results.Ok(new { isAuthenticated });
@@ -163,18 +152,15 @@ app.MapGet("/signin-google", async (
     var info = await signInManager.GetExternalLoginInfoAsync();
     if (info == null)
     {
+        Console.WriteLine("❌ External login info is null");
         return Results.Redirect("https://localhost:3000/login-failed");
     }
 
-    // Try sign in first
-    var signInResult = await signInManager.ExternalLoginSignInAsync(
-        info.LoginProvider, info.ProviderKey, isPersistent: false);
-
     IdentityUser user;
+    var signInResult = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
 
     if (!signInResult.Succeeded)
     {
-        // Register new user
         var email = info.Principal.FindFirstValue(ClaimTypes.Email);
         var name = info.Principal.FindFirstValue(ClaimTypes.Name) ?? "No Name";
 
@@ -193,7 +179,6 @@ app.MapGet("/signin-google", async (
         await userManager.AddLoginAsync(user, info);
         await userManager.AddToRoleAsync(user, "User");
 
-        // ✅ Add to Movie_Users DB
         var movieUser = new Movie_Users
         {
             Email = email,
@@ -204,9 +189,8 @@ app.MapGet("/signin-google", async (
             City = "Provo",
             State = "UT",
             Zip = "84604",
-            Age = 33 // if required
+            Age = 33
         };
-
 
         movieDbContext.movies_users.Add(movieUser);
         await movieDbContext.SaveChangesAsync();
@@ -216,11 +200,17 @@ app.MapGet("/signin-google", async (
         user = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
     }
 
-    // Sign in with cookie
+    // ✅ Actually sign in and issue the identity cookie
     await signInManager.SignInAsync(user, isPersistent: false);
+
+    // ✅ Make sure the auth cookie is flushed before redirect
+    await httpContext.Response.CompleteAsync(); // <-- This helps persist the cookie
+
+    Console.WriteLine("✅ Google SignIn complete: user = " + user.Email);
 
     return Results.Redirect("https://localhost:3000/new-user");
 });
+
 
 
 
@@ -291,10 +281,10 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
 
 app.MapGet("/pingauth", (ClaimsPrincipal user) =>
 {
-    // if (!user.Identity?.IsAuthenticated ?? false)
-    // {
-    //     return Results.Unauthorized();
-    // }
+    if (!user.Identity?.IsAuthenticated ?? false)
+    {
+        return Results.Unauthorized();
+    }
 
     var email = user.FindFirstValue(ClaimTypes.Email) ?? "unknown@example.com";
     var roles = user.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();

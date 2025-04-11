@@ -37,11 +37,11 @@ function App() {
   useEffect(() => {
     // Add or remove the 'home-page' class depending on the route
     if (location.pathname === '/') {
-      document.body.classList.add('home-page', 'fullscreen-overlay');
+      document.body.classList.add('home-page');
       document.body.classList.remove('default-background');
     } else {
       document.body.classList.add('default-background');
-      document.body.classList.remove('home-page', 'fullscreen-overlay');
+      document.body.classList.remove('home-page', );
     }
   }, [location]);
 
@@ -49,6 +49,7 @@ function App() {
     <div className="body">
       {isHomePage && <div className="fullscreen-overlay"></div>}
       <FrontNavBar />
+      <CookieBanner />
       {/* Conditionally render the welcome message only on the home page */}
       {showWelcomeMessage && (
         <div className="welcome-container">
@@ -114,9 +115,9 @@ function App() {
         <Route
           path="/new-user"
           element={
-            <AuthorizeView>
+            
               <NewUserForm />
-            </AuthorizeView>
+            
           }
         />
 
@@ -149,12 +150,15 @@ function App() {
 }
 
 function AppWrapper() {
+  if (window.location.protocol === 'http:') {
+    window.location.href = window.location.href.replace('http:', 'https:');
+  }
   return (
     <Router>
-            <CookieBanner />
+            
             <ThemePreference />
             <GoogleAnalyticsLoader />
-      <CookieBanner />
+      
       <App /> {/* Wrap App component with Router */}
     </Router>
   );

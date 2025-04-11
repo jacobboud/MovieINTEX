@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const UserContext = createContext<User | null>(null);
 
@@ -13,8 +13,9 @@ function AuthorizeView(props: { children: React.ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User>({ email: '', roles: [] });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    // ⏱ Wait 300ms before starting fetch
     const timer = setTimeout(() => {
       fetch('https://localhost:5000/pingauth', {
         method: 'GET',
@@ -34,14 +35,16 @@ function AuthorizeView(props: { children: React.ReactNode }) {
         })
         .catch(() => {
           setAuthorized(false);
+          navigate('/login');
         })
         .finally(() => {
           setLoading(false);
         });
-    },200); // <-- 👈 actual delay
-
-    return () => clearTimeout(timer); // cleanup
-  }, []);
+    }, 500); // ⏱️ slight delay lets the cookie settle
+  
+    return () => clearTimeout(timer);
+  }, [navigate]);
+  
 
   if (loading) return <p>Loading...</p>;
 
@@ -53,14 +56,10 @@ function AuthorizeView(props: { children: React.ReactNode }) {
     );
   }
 
-  return <Navigate to="/login" />;
+  // You can return null here, since we already navigated
+  return null;
 }
 
-export function AuthorizedUser(props: { value: string }) {
-  const user = React.useContext(UserContext);
-  if (!user) return null;
-  return props.value === 'email' ? <>{user.email}</> : null;
-}
 
 export default AuthorizeView;
 // Note: This component is used to wrap around routes that require authentication.

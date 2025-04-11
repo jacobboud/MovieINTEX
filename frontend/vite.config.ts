@@ -48,11 +48,29 @@ export default defineConfig({
         'frame-src': [
           "https://accounts.google.com"
         ],
-        'frame-ancestors': ["self"] // ✅ No quotes here either
+        'frame-ancestors': ["self"]
       }
-    })
+    }),
+    // ✅ Custom plugin to add middleware for HTTP → HTTPS redirect
+    {
+      name: 'redirect-http-to-https',
+      configureServer(server) {
+        server.middlewares.use((req: any, res: any, next) => {
+          const host = req.headers.host || '';
+          const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
+    
+          if (proto === 'http') {
+            res.writeHead(301, {
+              Location: `https://${host}${req.url}`,
+            });
+            res.end();
+          } else {
+            next();
+          }
+        });
+      },
+    }
   ],
-
   server: {
     port: 3000,
     https: true,
