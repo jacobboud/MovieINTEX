@@ -235,9 +235,9 @@ export default function ProfilePage() {
 
         <button
           onClick={() => navigate('/movie')}
-          className="absolute top-4 left-4 bg-white text-black px-4 py-2 rounded shadow"
+          className="absolute top-4 left-4 bg-white text-black px-6 py-3 mb-24 rounded shadow"
         >
-          ← Back to Movie Page
+          ← To Movie Page
         </button>
       </div>
     </>
