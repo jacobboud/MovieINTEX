@@ -151,10 +151,9 @@ function App() {
 function AppWrapper() {
   return (
     <Router>
-            <CookieBanner />
-            <ThemePreference />
-            <GoogleAnalyticsLoader />
       <CookieBanner />
+      <ThemePreference />
+      <GoogleAnalyticsLoader />
       <App /> {/* Wrap App component with Router */}
     </Router>
   );

@@ -7,20 +7,20 @@ export default function CookieBanner() {
 
   if (consent) return null;
 
-    return (
-        <div className="cookie-banner">
-            <br></br>
-            <h1>Cookies</h1>
-            <p className="cookie-banner-p">
-                We use cookies to improve your experience. By continuing, you agree to
-                our cookie policy.
-            </p>
-            <Button className="accept-btn" onClick={giveConsent}>
-                Accept
-            </Button>
-            <Button className="bg-red-600 text-white" onClick={revokeConsent}>
-                Decline
-            </Button>
-        </div>
-    );
+  return (
+    <div className="cookie-banner">
+      <br></br>
+      <h1>Cookies</h1>
+      <p className="cookie-banner-p">
+        We use cookies to improve your experience. By continuing, you agree to
+        our cookie policy.
+      </p>
+      <Button className="accept-btn" onClick={giveConsent}>
+        Accept
+      </Button>
+      <Button className="delete-btn" onClick={revokeConsent}>
+        Decline
+      </Button>
+    </div>
+  );
 }
