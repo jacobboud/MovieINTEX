@@ -291,10 +291,10 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
 
 app.MapGet("/pingauth", (ClaimsPrincipal user) =>
 {
-    // if (!user.Identity?.IsAuthenticated ?? false)
-    // {
-    //     return Results.Unauthorized();
-    // }
+    if (!user.Identity?.IsAuthenticated ?? false)
+    {
+        return Results.Unauthorized();
+    }
 
     var email = user.FindFirstValue(ClaimTypes.Email) ?? "unknown@example.com";
     var roles = user.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();

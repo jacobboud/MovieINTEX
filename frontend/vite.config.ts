@@ -55,7 +55,7 @@ export default defineConfig({
 
   server: {
     port: 3000,
-    https: true,
+
     proxy: {
       '/Movie/': {
         target: 'https://localhost:5000',

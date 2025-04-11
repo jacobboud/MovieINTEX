@@ -22,4 +22,4 @@ appsettings.Development.json
 
 .DS_Store
 
-appsettings.Development.json
+appsettings.Production.json
