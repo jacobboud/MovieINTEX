@@ -21,3 +21,5 @@ appsettings.Development.json
 *.tlog
 
 .DS_Store
+
+appsettings.Development.json

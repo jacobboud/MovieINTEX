@@ -49,7 +49,7 @@ function App() {
     <div className="body">
       {isHomePage && <div className="fullscreen-overlay"></div>}
       <FrontNavBar />
-      <CookieBanner />
+      
       {/* Conditionally render the welcome message only on the home page */}
       {showWelcomeMessage && (
         <div className="welcome-container">
@@ -115,9 +115,9 @@ function App() {
         <Route
           path="/new-user"
           element={
-            
-              <NewUserForm />
-            
+              <AuthorizeView>
+                <NewUserForm />
+              </AuthorizeView>
           }
         />
 
@@ -155,10 +155,10 @@ function AppWrapper() {
   }
   return (
     <Router>
-            
-            <ThemePreference />
-            <GoogleAnalyticsLoader />
-      
+      <CookieBanner />
+      <ThemePreference />
+      <GoogleAnalyticsLoader />
+
       <App /> {/* Wrap App component with Router */}
     </Router>
   );
