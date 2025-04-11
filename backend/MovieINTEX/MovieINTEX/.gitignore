@@ -5,7 +5,7 @@
 **/obj/
 
 appsettings.Development.json
-
+appsettings.Production.json
 *.sqlite-shm
 *.sqlite-wal
 
