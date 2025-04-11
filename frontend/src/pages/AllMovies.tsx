@@ -53,7 +53,7 @@ const columnToPropertyMap: { [key: string]: string } = {
 const AllMovies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedPageSize, setSelectedPageSize] = useState(12);
+  const [selectedPageSize, setSelectedPageSize] = useState(15);
   const [totalPages, setTotalPages] = useState(1);
   const [category, setCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('NameAsc');
@@ -290,8 +290,8 @@ const AllMovies: React.FC = () => {
             value={selectedPageSize}
             onChange={handlePageSizeChange}
           >
-            <option value={12}>12</option>
-            <option value={24}>24</option>
+            <option value={15}>15</option>
+            <option value={30}>30</option>
             <option value={50}>50</option>
           </select>
         </div>
