@@ -5,6 +5,7 @@
 **/obj/
 
 appsettings.Development.json
+appsettings.Production.json
 
 *.sqlite-shm
 *.sqlite-wal
@@ -22,4 +23,15 @@ appsettings.Development.json
 
 .DS_Store
 
-appsettings.Development.json
+*.sqlite
+*.db
+*.pfx
+.env
+.env.production.local
+
+
+
+# Ignore Node files
+node_modules/
+package-lock.json
+package.json

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/BackNavBar';
 import './ProfilePage.css';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 interface MovieDto {
   showId: string;
@@ -31,7 +33,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     axios
-      .get('https://localhost:5000/api/user/profile', { withCredentials: true })
+    .get(`${API_BASE_URL}/api/user/profile`, { withCredentials: true })
+  
       .then((res) => {
         const data = res.data;
         setFavoriteMovie(data.favoriteMovie || '');
@@ -48,9 +51,10 @@ export default function ProfilePage() {
 
     try {
       const res = await axios.get(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
+        `${API_BASE_URL}/Movie/movies?query=${encodeURIComponent(query)}`,
         { withCredentials: true }
       );
+      
 
       // Manually map snake_case to camelCase
       const mappedResults = res.data.map((movie: any) => ({
@@ -71,13 +75,14 @@ export default function ProfilePage() {
   const handleSetFavorite = async (movie: MovieDto) => {
     try {
       await axios.put(
-        'https://localhost:5000/api/user/favorite-movie',
+        `${API_BASE_URL}/api/user/favorite-movie`,
         { ShowId: movie.showId },
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
         }
       );
+      
 
       setFavoriteMovie(movie.showId);
       setFavoriteMovieTitle(movie.title);
@@ -107,20 +112,23 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       await axios.put(
-        'https://localhost:5000/api/user/ratings',
+        `${API_BASE_URL}/api/user/ratings`,
         ratings.map((r) => ({ showId: r.showId, rating: r.rating })),
         { withCredentials: true }
       );
-
+      
       await axios.put(
-        'https://localhost:5000/api/user/categories',
+        `${API_BASE_URL}/api/user/categories`,
         categories,
         { withCredentials: true }
       );
-
-      await axios.put('https://localhost:5000/api/user/services', services, {
-        withCredentials: true,
-      });
+      
+      await axios.put(
+        `${API_BASE_URL}/api/user/services`,
+        services,
+        { withCredentials: true }
+      );
+      
 
       alert('Profile updated successfully!');
     } catch (err) {

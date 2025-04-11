@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 function Logout(props: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
@@ -7,9 +9,9 @@ function Logout(props: { children: React.ReactNode }) {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://localhost:5000/logout', {
+      const response = await fetch(`${API_BASE_URL}/logout`, {
         method: 'POST',
-        credentials: 'include', // Ensure cookies are sent
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

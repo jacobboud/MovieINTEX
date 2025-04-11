@@ -1,19 +1,19 @@
+/// <reference types="node" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import csp from 'vite-plugin-csp';
-import mkcert from 'vite-plugin-mkcert';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 export default defineConfig({
   plugins: [
     react(),
-    mkcert(),
     csp({
       enabled: true,
       policy: {
-        'default-src': ["self", "https://localhost:5000"],
+        'default-src': ["self", "https://intex13-backend-fwh6gqfmegakgwaw.eastus-01.azurewebsites.net"],
         'connect-src': [
           "self",
-          "https://localhost:5000",
+          "https://intex13-backend-fwh6gqfmegakgwaw.eastus-01.azurewebsites.net",
           "https://www.google-analytics.com",
           "https://accounts.google.com",
           "https://oauth2.googleapis.com"
@@ -22,7 +22,6 @@ export default defineConfig({
           "self",
           "unsafe-inline",
           "unsafe-eval",
-          "https://localhost:5000",
           "https://accounts.google.com",
           "https://www.google-analytics.com",
           "https://www.googletagmanager.com"
@@ -41,27 +40,27 @@ export default defineConfig({
         'img-src': [
           "self",
           "data:",
-          "https://localhost:5000",
+          "https://intex13-backend-fwh6gqfmegakgwaw.eastus-01.azurewebsites.net",
           "https://www.google-analytics.com",
           "https://www.googletagmanager.com"
         ],
-        'frame-src': [
-          "https://accounts.google.com"
-        ],
+        'frame-src': ["https://accounts.google.com"],
         'frame-ancestors': ["self"]
       }
     }),
-    // ✅ Custom plugin to add middleware for HTTP → HTTPS redirect
     {
       name: 'redirect-http-to-https',
       configureServer(server) {
-        server.middlewares.use((req: any, res: any, next) => {
+        server.middlewares.use((req: IncomingMessage, res: ServerResponse, next) => {
+          const proto =
+            req.headers['x-forwarded-proto'] ||
+            ((req.socket as any).encrypted ? 'https' : 'http');
           const host = req.headers.host || '';
-          const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
-    
+          const url = req.url || '/';
+
           if (proto === 'http') {
             res.writeHead(301, {
-              Location: `https://${host}${req.url}`,
+              Location: `https://${host}${url}`,
             });
             res.end();
           } else {
@@ -73,13 +72,13 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
-    https: true,
     proxy: {
       '/Movie/': {
-        target: 'https://localhost:5000',
+        target: 'https://intex13-backend-fwh6gqfmegakgwaw.eastus-01.azurewebsites.net',
         changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
+        secure: true
+      }
+    }
+  }
+  
 });

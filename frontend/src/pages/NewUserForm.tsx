@@ -4,6 +4,8 @@ import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { useNavigate } from 'react-router-dom';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 interface MovieDto {
   show_id: string; // ✅ match the backend
@@ -36,8 +38,10 @@ export default function NewUserForm() {
       setSearchResults([]);
 
       const res = await axios.get(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`, {withCredentials: true,},
+        `${API_BASE_URL}/Movie/movies?query=${encodeURIComponent(query)}`, 
+        { withCredentials: true }
       );
+      
 
       const results = Array.isArray(res.data) ? res.data : [];
       setSearchResults(results);
@@ -73,13 +77,14 @@ export default function NewUserForm() {
         console.log('🎬 Submitting favorite movie:', selectedMovie?.show_id);
         console.log('Type of showId:', typeof selectedMovie?.show_id);
         await axios.put(
-          'https://localhost:5000/api/user/favorite-movie',
+          `${API_BASE_URL}/api/user/favorite-movie`,
           JSON.stringify(selectedMovie?.show_id),
           {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true,
           }
         );
+        
       }
 
       // Submit streaming services
@@ -90,10 +95,11 @@ export default function NewUserForm() {
       );
 
       await axios.put(
-        'https://localhost:5000/api/user/services',
+        `${API_BASE_URL}/api/user/services`,
         servicesPayload,
         { withCredentials: true }
       );
+      
 
       // Submit categories
       const categoryPayload: Record<string, boolean> = {};
@@ -103,10 +109,11 @@ export default function NewUserForm() {
       );
 
       await axios.put(
-        'https://localhost:5000/api/user/categories',
+        `${API_BASE_URL}/api/user/categories`,
         categoryPayload,
         { withCredentials: true }
       );
+      
 
       // Navigate to movie page
       navigate('/movie');
@@ -119,9 +126,10 @@ export default function NewUserForm() {
   useEffect(() => {
     if (step === 3) {
       axios
-        .get('https://localhost:5000/Movie/categories', {
-          withCredentials: true, // ✅ this sends the cookie for auth
-        })
+      .get(`${API_BASE_URL}/Movie/categories`, {
+        withCredentials: true,
+      })
+  
         .then((res) => setCategories(res.data))
         .catch((err) => console.error('Error fetching categories:', err));
     }

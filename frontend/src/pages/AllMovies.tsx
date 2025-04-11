@@ -7,6 +7,8 @@ import NavBar from '../components/BackNavBar';
 import './AllMovies.css';
 import Footer from '../components/Footer';
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 interface Movie {
   show_id: string;
   title: string;
@@ -79,10 +81,11 @@ const AllMovies: React.FC = () => {
     if (normalizedCategory) params.category = normalizedCategory;
 
     try {
-      const res = await axios.get('/Movie/paged-movies', {
+      const res = await axios.get(`${API_BASE_URL}/Movie/paged-movies`, {
         params,
         withCredentials: true,
       });
+      
       console.log('Fetched movies response:', res.data);
 
       if (Array.isArray(res.data.movies)) {
@@ -104,9 +107,10 @@ const AllMovies: React.FC = () => {
   // Fetch movie categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/Movie/categories', {
+      const res = await axios.get(`${API_BASE_URL}/Movie/categories`, {
         withCredentials: true,
       });
+      
       if (Array.isArray(res.data)) {
         setCategories(res.data);
       } else {
@@ -133,9 +137,10 @@ const AllMovies: React.FC = () => {
     const fetchRecommendations = async () => {
       if (!category) {
         try {
-          const res = await axios.get('/Movie/carousels', {
+          const res = await axios.get(`${API_BASE_URL}/Movie/carousels`, {
             withCredentials: true,
           });
+          
           if (res.data?.carousels?.length > 0) {
             const recommendedForYou = res.data.carousels.find((c: any) =>
               c.title?.toLowerCase().includes('recommended for you')
@@ -152,10 +157,11 @@ const AllMovies: React.FC = () => {
       }
 
       try {
-        const res = await axios.get('/Movie/category-recommendations', {
+        const res = await axios.get(`${API_BASE_URL}/Movie/category-recommendations`, {
           params: { category: normalizedCategory },
           withCredentials: true,
         });
+        
         setRecommendedMovies(res.data);
       } catch (err) {
         console.error('Error fetching category recommendations:', err);
@@ -198,9 +204,10 @@ const AllMovies: React.FC = () => {
 
     try {
       const res = await axios.get<Movie[]>(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
+        `${API_BASE_URL}/Movie/movies?query=${encodeURIComponent(query)}`,
         { withCredentials: true }
       );
+      
       setSearchResults(res.data);
     } catch (err) {
       console.error('Search failed:', err);

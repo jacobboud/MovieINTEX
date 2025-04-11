@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CreateAccount.css';
 import Footer from '../components/Footer';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -41,9 +43,9 @@ function Register() {
       setError('Passwords do not match.');
     } else {
       setError('');
-      fetch('https://localhost:5000/custom-register', {
+      fetch(`${API_BASE_URL}/custom-register`, {
         method: 'POST',
-        credentials: 'include', // Include cookies in the request
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
@@ -54,7 +56,7 @@ function Register() {
           city,
           state: stateVal,
           zip,
-          phone, // ✅ Included in request
+          phone,
         }),
       })
         .then(async (response) => {
@@ -204,8 +206,8 @@ function Register() {
                   className="btn-google"
                   type="button"
                   onClick={() => {
-                    window.location.href =
-                      'https://localhost:5000/login-google';
+                    window.location.href = `${API_BASE_URL}/login-google`;
+
                   }}
                 >
                   <i className="fa-brands fa-google me-2"></i> Sign in with

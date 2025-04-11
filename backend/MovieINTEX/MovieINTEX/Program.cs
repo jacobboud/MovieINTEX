@@ -7,15 +7,11 @@ using MovieINTEX.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.Extensions.FileProviders;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -26,29 +22,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
 
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
-
 builder.Services.AddAuthorization();
-
 builder.Services.AddTransient(typeof(IEmailSender<>), typeof(NoOpEmailSender<>));
-
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-//     .AddEntityFrameworkStores<ApplicationDbContext>();
-
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
-    options.ClaimsIdentity.UserNameClaimType = ClaimTypes.Email; // Ensure email is stored in claims
+    options.ClaimsIdentity.UserNameClaimType = ClaimTypes.Email;
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
-
 });
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, CustomUserClaimsPrincipalFactory>();
@@ -58,73 +47,57 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.Name = "AspNetCore.Identity.Application";
-
-    // options.LoginPath = "";
-    // options.LoginPath = "/login"; // This value isn't actually used, but it's fine
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-
-    options.LoginPath = ""; // disables automatic redirect
+    options.LoginPath = "";
     options.Events.OnRedirectToLogin = context =>
     {
-        context.Response.StatusCode = 401; // 🔐 Tell frontend: you're not logged in
+        context.Response.StatusCode = 401;
         return Task.CompletedTask;
     };
-
 });
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
-              .AllowCredentials()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+            "https://localhost:3000",
+            "https://intex13-frontend.azurewebsites.net")
+            .AllowCredentials()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
 builder.Services.AddAuthentication(options =>
-    {
-        // Set the default scheme for sign-in and challenges
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-    })
-    .AddCookie()
-    .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
-    {
-        options.SignInScheme = IdentityConstants.ExternalScheme;
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-        options.CallbackPath = "/signin-google";
-    });
-
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+{
+    options.SignInScheme = IdentityConstants.ExternalScheme;
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.CallbackPath = "/signin-google";
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-
-
 app.UseCors("AllowFrontend");
-
-
 app.UseHttpsRedirection();
-
-
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.MapIdentityApi<IdentityUser>();
-
-
 
 app.MapGet("/auth-status", (ClaimsPrincipal user) =>
 {
@@ -132,13 +105,11 @@ app.MapGet("/auth-status", (ClaimsPrincipal user) =>
     return Results.Ok(new { isAuthenticated });
 });
 
-
-
 app.MapGet("/login-google", async context =>
 {
     var props = new AuthenticationProperties
     {
-        RedirectUri = "https://localhost:3000/new-user" // ✅ Full redirect to frontend
+        RedirectUri = "https://intex13-frontend.azurewebsites.net/new-user"
     };
     await context.ChallengeAsync(GoogleDefaults.AuthenticationScheme, props);
 });
@@ -153,7 +124,7 @@ app.MapGet("/signin-google", async (
     if (info == null)
     {
         Console.WriteLine("❌ External login info is null");
-        return Results.Redirect("https://localhost:3000/login-failed");
+        return Results.Redirect("https://intex13-frontend.azurewebsites.net/login-failed");
     }
 
     IdentityUser user;
@@ -200,27 +171,19 @@ app.MapGet("/signin-google", async (
         user = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
     }
 
-    // ✅ Actually sign in and issue the identity cookie
     await signInManager.SignInAsync(user, isPersistent: false);
-
-    // ✅ Make sure the auth cookie is flushed before redirect
-    await httpContext.Response.CompleteAsync(); // <-- This helps persist the cookie
+    await httpContext.Response.CompleteAsync();
 
     Console.WriteLine("✅ Google SignIn complete: user = " + user.Email);
-
-    return Results.Redirect("https://localhost:3000/new-user");
+    return Results.Redirect("https://intex13-frontend.azurewebsites.net/new-user");
 });
-
-
-
-
 
 app.MapPost("/custom-register", async (
     RegisterDto model,
     UserManager<IdentityUser> userManager,
-    SignInManager<IdentityUser> signInManager, // 👈 add this
+    SignInManager<IdentityUser> signInManager,
     MovieDbContext movieDbContext,
-    HttpContext httpContext) => // 👈 add this for cookie login
+    HttpContext httpContext) =>
 {
     var identityUser = new IdentityUser
     {
@@ -236,11 +199,8 @@ app.MapPost("/custom-register", async (
     }
 
     await userManager.AddToRoleAsync(identityUser, "User");
-
-    // 🧠 Sign in the user right after registration
     await signInManager.SignInAsync(identityUser, isPersistent: false);
 
-    // ✅ Add MovieUser record
     var movieUser = new Movie_Users
     {
         Name = model.Name,
@@ -260,14 +220,10 @@ app.MapPost("/custom-register", async (
     return Results.Ok(new { message = "User registered and signed in." });
 });
 
-
-
-
 app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
 {
     await signInManager.SignOutAsync();
 
-    // Ensure authentication cookie is removed
     context.Response.Cookies.Delete(".AspNetCore.Identity.Application", new CookieOptions
     {
         HttpOnly = true,
@@ -277,7 +233,6 @@ app.MapPost("/logout", async (HttpContext context, SignInManager<IdentityUser> s
 
     return Results.Ok(new { message = "Logout successful" });
 }).RequireAuthorization();
-
 
 app.MapGet("/pingauth", (ClaimsPrincipal user) =>
 {
@@ -291,7 +246,6 @@ app.MapGet("/pingauth", (ClaimsPrincipal user) =>
 
     return Results.Json(new { email, roles });
 });
-
 
 using (var scope = app.Services.CreateScope())
 {
@@ -307,7 +261,5 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-
-
 
 app.Run();

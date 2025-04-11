@@ -1,5 +1,7 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 export const UserContext = createContext<User | null>(null);
 
@@ -17,7 +19,8 @@ function AuthorizeView(props: { children: React.ReactNode }) {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetch('https://localhost:5000/pingauth', {
+          fetch(`${API_BASE_URL}/pingauth`, {
+
                 method: 'GET',
                 credentials: 'include',
             })

@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import BackNavBar from '../components/BackNavBar';
 import Footer from '../components/Footer';
 import './ManageMovies.css';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 const ManageMovies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -20,10 +22,10 @@ const ManageMovies: React.FC = () => {
   const genreToKey = (genre: string) => genre.toLowerCase().replace(/\s+/g, '');
 
   useEffect(() => {
-    fetch(
-      `https://localhost:5000/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`,
-      { credentials: 'include' }
-    )
+    fetch(`${API_BASE_URL}/Movie/paged-movies?page=${currentPage}&pageSize=${pageSize}`, {
+      credentials: 'include'
+    })
+    
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok');
         return res.json();
@@ -44,10 +46,11 @@ const ManageMovies: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this movie?')) {
-      fetch(`https://localhost:5000/Movie/DeleteMovie/${id}`, {
+      fetch(`${API_BASE_URL}/Movie/DeleteMovie/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       })
+      
         .then((response) => {
           if (response.ok) {
             // Update the frontend after deletion
@@ -74,8 +77,9 @@ const ManageMovies: React.FC = () => {
     };
 
     const url = isNew
-      ? 'https://localhost:5000/Movie/AddMovie'
-      : `https://localhost:5000/Movie/UpdateMovie/${editingMovie.show_id}`;
+    ? `${API_BASE_URL}/Movie/AddMovie`
+    : `${API_BASE_URL}/Movie/UpdateMovie/${editingMovie.show_id}`;
+  
     const method = isNew ? 'POST' : 'PUT';
 
     fetch(url, {

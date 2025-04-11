@@ -7,6 +7,8 @@ import NavBar from '../components/BackNavBar';
 import AuthorizeView from '../components/AuthorizeView';
 import RequireRole from '../components/RequireRole';
 import Footer from '../components/Footer';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 interface CarouselItem {
   title: string;
@@ -34,9 +36,10 @@ export default function MoviePage() {
 
   useEffect(() => {
     axios
-      .get<CarouselsResponse>('https://localhost:5000/Movie/carousels', {
-        withCredentials: true,
-      })
+    .get<CarouselsResponse>(`${API_BASE_URL}/Movie/carousels`, {
+      withCredentials: true,
+    })
+  
       .then((res) => {
         console.log('🎬 Carousel Response:', res.data);
         setUserName(res.data.name);
@@ -55,9 +58,10 @@ export default function MoviePage() {
 
     try {
       const res = await axios.get<CarouselItem[]>(
-        `https://localhost:5000/Movie/movies?query=${encodeURIComponent(query)}`,
+        `${API_BASE_URL}/Movie/movies?query=${encodeURIComponent(query)}`,
         { withCredentials: true }
       );
+      
       setSearchResults(res.data);
     } catch (err) {
       console.error('Search failed:', err);

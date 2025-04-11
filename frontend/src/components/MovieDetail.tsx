@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import './MovieDetail.css';
 import BackNavBar from './BackNavBar';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 interface MovieDetailData {
   show_id: string;
@@ -35,13 +37,10 @@ export default function MovieDetail() {
     if (!showId) return;
 
     // Fetch movie details
-    axios
-      .get<MovieDetailData>(
-        `https://localhost:5000/Movie/movie-details/${showId}`,
-        {
-          withCredentials: true,
-        }
-      )
+    axios.get<MovieDetailData>(`${API_BASE_URL}/Movie/movie-details/${showId}`, {
+      withCredentials: true,
+    })
+    
       .then((res) => {
         setMovie(res.data);
         setUserRating(res.data.userRating ?? 0);
@@ -49,13 +48,10 @@ export default function MovieDetail() {
       .catch((err) => console.error('Failed to fetch movie details:', err));
 
     // Fetch recommendations
-    axios
-      .get<MovieDetailData[]>(
-        `https://localhost:5000/Movie/movie-recommendations/${showId}`,
-        {
-          withCredentials: true,
-        }
-      )
+    axios.get<MovieDetailData[]>(`${API_BASE_URL}/Movie/movie-recommendations/${showId}`, {
+      withCredentials: true,
+    })
+    
       .then((res) => setRecommendations(res.data))
       .catch((err) =>
         console.error('Failed to fetch movie recommendations:', err)
@@ -65,15 +61,15 @@ export default function MovieDetail() {
   const handleRate = (rating: number) => {
     if (!movie) return;
 
-    axios
-      .post(
-        'https://localhost:5000/Movie/rate',
-        {
-          showId: movie.show_id,
-          rating: rating,
-        },
-        { withCredentials: true }
-      )
+    axios.post(
+      `${API_BASE_URL}/Movie/rate`,
+      {
+        showId: movie.show_id,
+        rating: rating,
+      },
+      { withCredentials: true }
+    )
+    
       .then(() => setUserRating(rating))
       .catch((err) => console.error('Failed to submit rating:', err));
   };
