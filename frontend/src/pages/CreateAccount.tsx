@@ -197,6 +197,27 @@ function Register() {
                   Go to Login
                 </button>
               </div>
+              <br></br>
+              <br></br>
+              <div className="d-grid mb-2">
+                <button
+                  className="btn-google"
+                  type="button"
+                  onClick={() => {
+                    window.location.href =
+                      'https://localhost:5000/login-google';
+                  }}
+                >
+                  <i className="fa-brands fa-google me-2"></i> Sign in with
+                  Google
+                </button>
+              </div>
+              <div className="d-grid mb-2">
+                <button className="btn-facebook" type="button">
+                  <i className="fa-brands fa-facebook-f me-2"></i> Sign in with
+                  Facebook
+                </button>
+              </div>
             </form>
             <strong>{error && <p className="error">{error}</p>}</strong>
           </div>

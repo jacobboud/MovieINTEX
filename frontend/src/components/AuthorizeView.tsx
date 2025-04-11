@@ -13,51 +13,58 @@ function AuthorizeView(props: { children: React.ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User>({ email: '', roles: [] });
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetch('https://localhost:5000/pingauth', {
-        method: 'GET',
-        credentials: 'include',
-      })
-        .then(async (res) => {
-          if (res.status === 401) {
-            throw new Error('Unauthorized');
-          }
-          const data = await res.json();
-          if (data.email) {
-            setUser({ email: data.email, roles: data.roles || [] });
-            setAuthorized(true);
-          } else {
-            throw new Error('No valid user data');
-          }
-        })
-        .catch(() => {
-          setAuthorized(false);
-          navigate('/login');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, 500); // ⏱️ slight delay lets the cookie settle
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetch('https://localhost:5000/pingauth', {
+                method: 'GET',
+                credentials: 'include',
+            })
+                .then(async (res) => {
+                    if (res.status === 401) {
+                        throw new Error('Unauthorized');
+                    }
+                    const data = await res.json();
+                    if (data.email) {
+                        setUser({ email: data.email, roles: data.roles || [] });
+                        setAuthorized(true);
+                    } else {
+                        throw new Error('No valid user data');
+                    }
+                })
+                .catch(() => {
+                    setAuthorized(false);
+                    navigate('/login');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }, 500); // ⏱️ slight delay lets the cookie settle
+
+        return () => clearTimeout(timer);
+    }, [navigate]);
+
+
+    if (loading) return <p>Loading...</p>;
+
+    if (authorized) {
+        return (
+            <UserContext.Provider value={user}>
+                {props.children}
+            </UserContext.Provider>
+        );
+    }
+
+    // You can return null here, since we already navigated
   
-    return () => clearTimeout(timer);
-  }, [navigate]);
-  
+    return null;
+}
 
-  if (loading) return <p>Loading...</p>;
-
-  if (authorized) {
-    return (
-      <UserContext.Provider value={user}>
-        {props.children}
-      </UserContext.Provider>
-    );
-  }
-
-  // You can return null here, since we already navigated
-  return null;
+export function AuthorizedUser(props: { value: string }) {
+    const user = React.useContext(UserContext);
+    if (!user) return null;
+    return props.value === 'email' ? <>{user.email}</> : null;
 }
 
 

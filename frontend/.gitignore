@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 *.jpg
 **/Movie Posters/
+appsettings.Development.json
